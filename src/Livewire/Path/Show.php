@@ -31,6 +31,17 @@ class Show extends Component
             ->completedLessonIdsForUser($user->id, $lessons->pluck('id')->all());
         $completedSet = array_flip($completedIds);
 
+        $this->dispatch('comms', [
+            'model' => \Platform\Academy\Models\AcademyPath::class,
+            'modelId' => $path->id,
+            'subject' => 'Academy: ' . $path->title,
+            'description' => $path->description,
+            'url' => route('academy.paths.show', ['uuid' => $path->uuid]),
+            'source' => 'academy.paths.show',
+            'recipients' => [],
+            'meta' => ['view_type' => 'show', 'resource' => 'path'],
+        ]);
+
         return view('academy::livewire.path.show', [
             'path' => $path,
             'lessons' => $lessons,

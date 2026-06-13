@@ -9,7 +9,43 @@
             ['label' => 'Academy', 'href' => route('academy.dashboard'), 'icon' => 'academic-cap'],
             ['label' => 'Lernpfade', 'href' => route('academy.paths.index')],
             ['label' => $path->title, 'href' => route('academy.paths.show', ['uuid' => $path->uuid])],
-        ]" />
+        ]">
+            <button @click="Alpine?.store('page') && (Alpine.store('page')['activityOpen'] = !Alpine.store('page')['activityOpen'])"
+                class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-sm rounded-lg text-[var(--ui-muted)] hover:text-[var(--ui-secondary)] hover:bg-[var(--ui-muted-5)] transition-colors">
+                @svg('heroicon-o-information-circle', 'w-4 h-4')
+                <span class="hidden sm:inline">Info</span>
+            </button>
+        </x-ui-page-actionbar>
+    </x-slot>
+
+    <x-slot name="activity">
+        <x-ui-page-sidebar title="Lernpfad" width="w-80" :defaultOpen="false" storeKey="activityOpen" side="right">
+            <div class="p-5 space-y-5">
+                <div>
+                    <h3 class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3">Fortschritt</h3>
+                    <div class="p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/15">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs text-gray-600 dark:text-gray-300">{{ $summary['completed'] }} / {{ $summary['total'] }}</span>
+                            <span class="text-sm font-semibold text-emerald-700 dark:text-emerald-300">{{ $summary['pct'] }}%</span>
+                        </div>
+                        <div class="w-full bg-emerald-500/10 rounded-full h-1.5">
+                            <div class="bg-emerald-500 h-1.5 rounded-full" style="width: {{ $summary['pct'] }}%"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3">Meta</h3>
+                    <div class="space-y-2 text-xs text-gray-500 dark:text-gray-400">
+                        @if($path->target_audience)
+                            <div><span class="font-medium text-gray-700 dark:text-gray-300">Zielgruppe:</span> {{ $path->target_audience }}</div>
+                        @endif
+                        <div><span class="font-medium text-gray-700 dark:text-gray-300">Status:</span> {{ $path->status }}</div>
+                        <div><span class="font-medium text-gray-700 dark:text-gray-300">Slug:</span> {{ $path->slug }}</div>
+                    </div>
+                </div>
+            </div>
+        </x-ui-page-sidebar>
     </x-slot>
 
     <x-ui-page-container>

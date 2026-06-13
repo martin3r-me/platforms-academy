@@ -8,7 +8,32 @@
         <x-ui-page-actionbar :breadcrumbs="[
             ['label' => 'Academy', 'href' => route('academy.dashboard'), 'icon' => 'academic-cap'],
             ['label' => 'Themen', 'href' => route('academy.topics.index')],
-        ]" />
+        ]">
+            <button @click="Alpine?.store('page') && (Alpine.store('page')['activityOpen'] = !Alpine.store('page')['activityOpen'])"
+                class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-sm rounded-lg text-[var(--ui-muted)] hover:text-[var(--ui-secondary)] hover:bg-[var(--ui-muted-5)] transition-colors">
+                @svg('heroicon-o-chart-bar', 'w-4 h-4')
+                <span class="hidden sm:inline">Aktivität</span>
+            </button>
+        </x-ui-page-actionbar>
+    </x-slot>
+
+    <x-slot name="activity">
+        <x-ui-page-sidebar title="Themen" width="w-80" :defaultOpen="false" storeKey="activityOpen" side="right">
+            <div class="p-5 space-y-3">
+                <div class="p-3 rounded-lg bg-black/[0.02] dark:bg-white/[0.03]">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-gray-500 dark:text-gray-400">Themen insgesamt</span>
+                        <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $topics->count() }}</span>
+                    </div>
+                </div>
+                <div class="p-3 rounded-lg bg-black/[0.02] dark:bg-white/[0.03]">
+                    <div class="flex items-center justify-between">
+                        <span class="text-xs text-gray-500 dark:text-gray-400">Lessons gesamt</span>
+                        <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $topics->sum('published_lessons_count') }}</span>
+                    </div>
+                </div>
+            </div>
+        </x-ui-page-sidebar>
     </x-slot>
 
     <x-ui-page-container>

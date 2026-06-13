@@ -11,6 +11,20 @@ use Platform\Academy\Models\AcademyTopic;
 
 class Dashboard extends Component
 {
+    public function rendered(): void
+    {
+        $this->dispatch('comms', [
+            'model' => null,
+            'modelId' => null,
+            'subject' => 'Academy Dashboard',
+            'description' => 'Übersicht aller Lernpfade und Themen',
+            'url' => route('academy.dashboard'),
+            'source' => 'academy.dashboard',
+            'recipients' => [],
+            'meta' => ['view_type' => 'dashboard'],
+        ]);
+    }
+
     public function render()
     {
         $user = Auth::user();

@@ -61,12 +61,32 @@ class Show extends Component
         $prev = $currentIndex !== false && $currentIndex > 0 ? $topicLessons[$currentIndex - 1] : null;
         $next = $currentIndex !== false && $currentIndex < $topicLessons->count() - 1 ? $topicLessons[$currentIndex + 1] : null;
 
+        $completedIdsInTopic = app(AcademyProgressService::class)
+            ->completedLessonIdsForUser($user->id, $topicLessons->pluck('id')->all());
+        $completedSet = array_flip($completedIdsInTopic);
+
+        $pathMemberships = $lesson->paths()->where('status', \Platform\Academy\Models\AcademyPath::STATUS_PUBLISHED)->get();
+
+        $this->dispatch('comms', [
+            'model' => AcademyLesson::class,
+            'modelId' => $lesson->id,
+            'subject' => 'Lesson: ' . $lesson->title,
+            'description' => $lesson->summary,
+            'url' => route('academy.lessons.show', ['uuid' => $lesson->uuid]),
+            'source' => 'academy.lessons.show',
+            'recipients' => [],
+            'meta' => ['view_type' => 'show', 'resource' => 'lesson', 'topic_id' => $lesson->topic->id],
+        ]);
+
         return view('academy::livewire.lesson.show', [
             'lesson' => $lesson,
             'renderedContent' => $renderedContent,
             'isCompleted' => $isCompleted,
             'prev' => $prev,
             'next' => $next,
+            'topicLessons' => $topicLessons,
+            'completedSet' => $completedSet,
+            'pathMemberships' => $pathMemberships,
         ])->layout('platform::layouts.app');
     }
 

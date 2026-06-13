@@ -33,6 +33,17 @@ class Show extends Component
         $completedIds = $progress->completedLessonIdsForUser($user->id, $lessons->pluck('id')->all());
         $completedSet = array_flip($completedIds);
 
+        $this->dispatch('comms', [
+            'model' => \Platform\Academy\Models\AcademyTopic::class,
+            'modelId' => $topic->id,
+            'subject' => 'Academy: ' . $topic->title,
+            'description' => $topic->description,
+            'url' => route('academy.topics.show', ['uuid' => $topic->uuid]),
+            'source' => 'academy.topics.show',
+            'recipients' => [],
+            'meta' => ['view_type' => 'show', 'resource' => 'topic'],
+        ]);
+
         return view('academy::livewire.topic.show', [
             'topic' => $topic,
             'lessons' => $lessons,

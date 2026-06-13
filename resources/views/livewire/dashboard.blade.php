@@ -7,7 +7,47 @@
     <x-slot name="actionbar">
         <x-ui-page-actionbar :breadcrumbs="[
             ['label' => 'Academy', 'href' => route('academy.dashboard'), 'icon' => 'academic-cap'],
-        ]" />
+        ]">
+            <button @click="Alpine?.store('page') && (Alpine.store('page')['activityOpen'] = !Alpine.store('page')['activityOpen'])"
+                class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-sm rounded-lg text-[var(--ui-muted)] hover:text-[var(--ui-secondary)] hover:bg-[var(--ui-muted-5)] transition-colors">
+                @svg('heroicon-o-chart-bar', 'w-4 h-4')
+                <span class="hidden sm:inline">Aktivität</span>
+            </button>
+        </x-ui-page-actionbar>
+    </x-slot>
+
+    <x-slot name="activity">
+        <x-ui-page-sidebar title="Academy" width="w-80" :defaultOpen="false" storeKey="activityOpen" side="right">
+            <div class="p-5 space-y-5">
+                <div>
+                    <h3 class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3">Team</h3>
+                    <div class="space-y-2">
+                        <div class="p-3 rounded-lg bg-black/[0.02] dark:bg-white/[0.03]">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs text-gray-500 dark:text-gray-400">Themen</span>
+                                <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $topicsCount }}</span>
+                            </div>
+                        </div>
+                        <div class="p-3 rounded-lg bg-black/[0.02] dark:bg-white/[0.03]">
+                            <div class="flex items-center justify-between">
+                                <span class="text-xs text-gray-500 dark:text-gray-400">Lessons (veröffentlicht)</span>
+                                <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $lessonsCount }}</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div>
+                    <h3 class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3">Dein Fortschritt</h3>
+                    <div class="p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/15">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs text-gray-600 dark:text-gray-300">Abgeschlossene Lessons</span>
+                            <span class="text-sm font-semibold text-emerald-700 dark:text-emerald-300">{{ $completedCount }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </x-ui-page-sidebar>
     </x-slot>
 
     <x-ui-page-container>

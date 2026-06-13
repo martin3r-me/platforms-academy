@@ -9,6 +9,19 @@ use Platform\Academy\Services\AcademyPathService;
 
 class Index extends Component
 {
+    public function rendered(): void
+    {
+        $this->dispatch('comms', [
+            'model' => null, 'modelId' => null,
+            'subject' => 'Academy: Lernpfade',
+            'description' => 'Übersicht aller Lernpfade',
+            'url' => route('academy.paths.index'),
+            'source' => 'academy.paths.index',
+            'recipients' => [],
+            'meta' => ['view_type' => 'index', 'resource' => 'paths'],
+        ]);
+    }
+
     public function render()
     {
         $user = Auth::user();
