@@ -1,0 +1,27 @@
+{
+    "name": "martin3r/platform-academy",
+    "description": "Academy Module for Platform — Lightweight learning paths, topics and lessons (markdown-based, with per-user progress).",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Platform Team",
+            "email": "team@platform.com"
+        }
+    ],
+    "require": {},
+    "autoload": {
+        "psr-4": {
+            "Platform\\Academy\\": "src/"
+        }
+    },
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Platform\\Academy\\AcademyServiceProvider"
+            ]
+        }
+    },
+    "minimum-stability": "dev",
+    "prefer-stable": true
+}
