@@ -50,6 +50,44 @@ class AcademyServiceProvider extends ServiceProvider
         $this->loadViewsFrom(__DIR__ . '/../resources/views', 'academy');
 
         $this->registerLivewireComponents();
+
+        $this->registerTools();
+    }
+
+    protected function registerTools(): void
+    {
+        try {
+            $registry = resolve(\Platform\Core\Tools\ToolRegistry::class);
+
+            // Overview
+            $registry->register(new \Platform\Academy\Tools\AcademyOverviewTool());
+
+            // Topics
+            $registry->register(new \Platform\Academy\Tools\ListAcademyTopicsTool());
+            $registry->register(new \Platform\Academy\Tools\GetAcademyTopicTool());
+            $registry->register(new \Platform\Academy\Tools\CreateAcademyTopicTool());
+            $registry->register(new \Platform\Academy\Tools\UpdateAcademyTopicTool());
+            $registry->register(new \Platform\Academy\Tools\DeleteAcademyTopicTool());
+
+            // Lessons (incl. content-ops on update)
+            $registry->register(new \Platform\Academy\Tools\ListAcademyLessonsTool());
+            $registry->register(new \Platform\Academy\Tools\GetAcademyLessonTool());
+            $registry->register(new \Platform\Academy\Tools\CreateAcademyLessonTool());
+            $registry->register(new \Platform\Academy\Tools\UpdateAcademyLessonTool());
+            $registry->register(new \Platform\Academy\Tools\DeleteAcademyLessonTool());
+
+            // Paths + pivot
+            $registry->register(new \Platform\Academy\Tools\ListAcademyPathsTool());
+            $registry->register(new \Platform\Academy\Tools\GetAcademyPathTool());
+            $registry->register(new \Platform\Academy\Tools\CreateAcademyPathTool());
+            $registry->register(new \Platform\Academy\Tools\UpdateAcademyPathTool());
+            $registry->register(new \Platform\Academy\Tools\DeleteAcademyPathTool());
+            $registry->register(new \Platform\Academy\Tools\AttachLessonToPathTool());
+            $registry->register(new \Platform\Academy\Tools\DetachLessonFromPathTool());
+            $registry->register(new \Platform\Academy\Tools\ReorderPathLessonsTool());
+        } catch (\Throwable $e) {
+            // ToolRegistry not available yet (e.g. during migrations)
+        }
     }
 
     protected function registerLivewireComponents(): void
