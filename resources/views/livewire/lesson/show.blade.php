@@ -11,11 +11,6 @@
             ['label' => $lesson->topic->title, 'href' => route('academy.topics.show', ['uuid' => $lesson->topic->uuid])],
             ['label' => $lesson->title, 'href' => route('academy.lessons.show', ['uuid' => $lesson->uuid])],
         ]">
-            <button @click="Alpine?.store('page') && (Alpine.store('page')['pageSidebarOpen'] = !Alpine.store('page')['pageSidebarOpen'])"
-                class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-sm rounded-lg text-[var(--ui-muted)] hover:text-[var(--ui-secondary)] hover:bg-[var(--ui-muted-5)] transition-colors">
-                @svg('heroicon-o-list-bullet', 'w-4 h-4')
-                <span class="hidden sm:inline">Lessons</span>
-            </button>
             <button @click="Alpine?.store('page') && (Alpine.store('page')['activityOpen'] = !Alpine.store('page')['activityOpen'])"
                 class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-sm rounded-lg text-[var(--ui-muted)] hover:text-[var(--ui-secondary)] hover:bg-[var(--ui-muted-5)] transition-colors">
                 @svg('heroicon-o-information-circle', 'w-4 h-4')
@@ -25,7 +20,7 @@
     </x-slot>
 
     <x-slot name="sidebar">
-        <x-ui-page-sidebar title="{{ $lesson->topic->title }}" width="w-72" :defaultOpen="true" storeKey="pageSidebarOpen" side="left">
+        <x-ui-page-sidebar title="{{ $lesson->topic->title }}" icon="heroicon-o-list-bullet" width="w-72" :defaultOpen="true">
             <nav class="p-3 space-y-1">
                 @foreach($topicLessons as $i => $tl)
                     <a wire:navigate href="{{ route('academy.lessons.show', ['uuid' => $tl->uuid]) }}"
