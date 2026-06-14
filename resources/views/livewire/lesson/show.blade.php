@@ -53,8 +53,128 @@
     .dark .academy-alert-important .academy-alert-label { color: #f0abfc; }
     .dark .academy-alert-caution  .academy-alert-label { color: #fca5a5; }
 
-    /* === Code-Blocks: Override prose-Default für besseren Highlight.js-Look === */
+    /* === Typography: explizite Hierarchie ohne Verlass auf prose-Plugin === */
+    .academy-lesson-content {
+        color: var(--ui-secondary);
+        font-size: 1rem;
+        line-height: 1.7;
+    }
+    .academy-lesson-content > * + * { margin-top: 1em; }
+
+    .academy-lesson-content h1 {
+        margin-top: 0;
+        margin-bottom: 0.75em;
+        font-size: 1.875rem;
+        font-weight: 700;
+        line-height: 1.2;
+        color: var(--ui-primary);
+    }
+    .academy-lesson-content h2 {
+        margin-top: 2.5em;
+        margin-bottom: 0.75em;
+        padding-bottom: 0.4em;
+        font-size: 1.5rem;
+        font-weight: 700;
+        line-height: 1.3;
+        color: var(--ui-primary);
+        border-bottom: 1px solid var(--ui-border);
+    }
+    .academy-lesson-content h3 {
+        margin-top: 2em;
+        margin-bottom: 0.5em;
+        font-size: 1.125rem;
+        font-weight: 600;
+        line-height: 1.4;
+        color: var(--ui-primary);
+    }
+    .academy-lesson-content h4 {
+        margin-top: 1.5em;
+        margin-bottom: 0.4em;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--ui-primary);
+    }
+    .academy-lesson-content p {
+        margin: 0.75em 0;
+        line-height: 1.7;
+    }
+    .academy-lesson-content strong {
+        color: var(--ui-primary);
+        font-weight: 600;
+    }
+    .academy-lesson-content em { font-style: italic; }
+
+    /* Listen — explizite Bullets/Numbers, klare Einrueckung */
+    .academy-lesson-content ul,
+    .academy-lesson-content ol {
+        margin: 1em 0;
+        padding-left: 1.5em;
+    }
+    .academy-lesson-content ul { list-style: disc; }
+    .academy-lesson-content ol { list-style: decimal; }
+    .academy-lesson-content li {
+        margin: 0.4em 0;
+        padding-left: 0.375em;
+    }
+    .academy-lesson-content li::marker {
+        color: var(--ui-muted);
+        font-weight: 600;
+    }
+    .academy-lesson-content li > p { margin: 0.25em 0; }
+    .academy-lesson-content li > ul,
+    .academy-lesson-content li > ol { margin: 0.4em 0; }
+
+    /* Tables */
+    .academy-lesson-content table {
+        width: 100%;
+        margin: 1.5em 0;
+        border-collapse: collapse;
+        font-size: 0.9375rem;
+    }
+    .academy-lesson-content thead {
+        background: var(--ui-muted-5);
+        border-bottom: 2px solid var(--ui-border);
+    }
+    .academy-lesson-content th {
+        padding: 0.625em 1em;
+        text-align: left;
+        font-weight: 600;
+        color: var(--ui-primary);
+    }
+    .academy-lesson-content td {
+        padding: 0.625em 1em;
+        border-top: 1px solid var(--ui-border);
+    }
+
+    /* Links */
+    .academy-lesson-content a {
+        color: #2563eb;
+        text-decoration: underline;
+        text-underline-offset: 2px;
+    }
+    .academy-lesson-content a:hover { color: #1d4ed8; }
+    .dark .academy-lesson-content a { color: #60a5fa; }
+    .dark .academy-lesson-content a:hover { color: #93c5fd; }
+
+    /* Blockquotes (echte, nicht Callouts) */
+    .academy-lesson-content blockquote {
+        margin: 1.5em 0;
+        padding: 0.5em 1em;
+        border-left: 3px solid var(--ui-muted-10);
+        color: var(--ui-muted);
+        font-style: italic;
+    }
+
+    /* Horizontale Trenner */
+    .academy-lesson-content hr {
+        margin: 2.5em 0;
+        border: none;
+        border-top: 1px solid var(--ui-border);
+    }
+
+    /* === Code-Blocks === */
     .academy-lesson-content pre {
+        margin: 1.25em 0;
         background: #0d1117;
         border-radius: 0.5rem;
         padding: 1rem 1.25rem;
@@ -73,9 +193,8 @@
         padding: 0.125rem 0.375rem;
         border-radius: 0.25rem;
         font-size: 0.875em;
+        font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     }
-    .academy-lesson-content :not(pre) > code::before,
-    .academy-lesson-content :not(pre) > code::after { content: ''; }
 </style>
 
 {{-- Highlight.js init: einmal beim Laden + bei jeder Livewire-Navigation --}}
@@ -213,7 +332,7 @@
                 @endif
             </div>
 
-            <article class="prose dark:prose-invert max-w-none academy-lesson-content">
+            <article class="academy-lesson-content">
                 {!! $renderedContent !!}
             </article>
 
