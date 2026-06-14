@@ -1,4 +1,101 @@
 <div>
+{{-- Highlight.js: Syntax-Highlighting für Code-Blocks --}}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/github-dark.min.css">
+<script defer src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
+
+{{-- Academy-Reader-Styles: Callouts, Code-Blocks, Reading-Polish --}}
+<style>
+    /* === Callouts / GitHub-Alerts === */
+    .academy-alert {
+        margin: 1.5rem 0;
+        padding: 0.875rem 1rem;
+        border-left: 4px solid;
+        border-radius: 0.5rem;
+        background: var(--ui-muted-5);
+    }
+    .academy-alert-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+        font-size: 0.875rem;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+        letter-spacing: 0.025em;
+    }
+    .academy-alert-icon { width: 1.125rem; height: 1.125rem; flex-shrink: 0; }
+    .academy-alert-body {
+        color: var(--ui-secondary);
+        font-size: 0.9375rem;
+        line-height: 1.6;
+    }
+    .academy-alert-body > *:first-child { margin-top: 0; }
+    .academy-alert-body > *:last-child { margin-bottom: 0; }
+
+    .academy-alert-info     { border-left-color: #3b82f6; }
+    .academy-alert-tip      { border-left-color: #10b981; }
+    .academy-alert-warning  { border-left-color: #f59e0b; }
+    .academy-alert-note     { border-left-color: #6b7280; }
+    .academy-alert-important{ border-left-color: #d946ef; }
+    .academy-alert-caution  { border-left-color: #ef4444; }
+
+    .academy-alert-info     .academy-alert-label { color: #1d4ed8; }
+    .academy-alert-tip      .academy-alert-label { color: #047857; }
+    .academy-alert-warning  .academy-alert-label { color: #b45309; }
+    .academy-alert-note     .academy-alert-label { color: #374151; }
+    .academy-alert-important .academy-alert-label { color: #a21caf; }
+    .academy-alert-caution  .academy-alert-label { color: #b91c1c; }
+
+    .dark .academy-alert-info     .academy-alert-label { color: #93c5fd; }
+    .dark .academy-alert-tip      .academy-alert-label { color: #6ee7b7; }
+    .dark .academy-alert-warning  .academy-alert-label { color: #fcd34d; }
+    .dark .academy-alert-note     .academy-alert-label { color: #d1d5db; }
+    .dark .academy-alert-important .academy-alert-label { color: #f0abfc; }
+    .dark .academy-alert-caution  .academy-alert-label { color: #fca5a5; }
+
+    /* === Code-Blocks: Override prose-Default für besseren Highlight.js-Look === */
+    .academy-lesson-content pre {
+        background: #0d1117;
+        border-radius: 0.5rem;
+        padding: 1rem 1.25rem;
+        overflow-x: auto;
+        font-size: 0.875rem;
+        line-height: 1.6;
+    }
+    .academy-lesson-content pre code {
+        background: transparent;
+        padding: 0;
+        color: #c9d1d9;
+        font-size: inherit;
+    }
+    .academy-lesson-content :not(pre) > code {
+        background: var(--ui-muted-10);
+        padding: 0.125rem 0.375rem;
+        border-radius: 0.25rem;
+        font-size: 0.875em;
+    }
+    .academy-lesson-content :not(pre) > code::before,
+    .academy-lesson-content :not(pre) > code::after { content: ''; }
+</style>
+
+{{-- Highlight.js init: einmal beim Laden + bei jeder Livewire-Navigation --}}
+<script>
+    (function() {
+        function initAcademyHighlight() {
+            if (typeof hljs !== 'undefined' && typeof hljs.highlightAll === 'function') {
+                hljs.highlightAll();
+            }
+        }
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initAcademyHighlight);
+        } else {
+            // already loaded — re-init (e.g. via wire:navigate)
+            setTimeout(initAcademyHighlight, 50);
+        }
+        document.addEventListener('livewire:navigated', initAcademyHighlight);
+    })();
+</script>
+
 <x-ui-page>
     <x-slot name="navbar">
         <x-ui-page-navbar title="" />
@@ -116,7 +213,7 @@
                 @endif
             </div>
 
-            <article class="prose dark:prose-invert max-w-none">
+            <article class="prose dark:prose-invert max-w-none academy-lesson-content">
                 {!! $renderedContent !!}
             </article>
 

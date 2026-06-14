@@ -3,10 +3,10 @@
 namespace Platform\Academy\Livewire\Lesson;
 
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Str;
 use Livewire\Component;
 use Platform\Academy\Models\AcademyLesson;
 use Platform\Academy\Models\AcademyLessonProgress;
+use Platform\Academy\Services\AcademyMarkdownService;
 use Platform\Academy\Services\AcademyProgressService;
 
 class Show extends Component
@@ -52,9 +52,7 @@ class Show extends Component
         $progress = $lesson->progressFor($user->id);
         $isCompleted = $progress && $progress->isCompleted();
 
-        $renderedContent = $lesson->content
-            ? (string) Str::of($lesson->content)->markdown()
-            : '';
+        $renderedContent = app(AcademyMarkdownService::class)->render($lesson->content);
 
         $topicLessons = $lesson->topic->publishedLessons()->get(['id', 'uuid', 'title', 'sort_order']);
         $currentIndex = $topicLessons->search(fn ($l) => $l->id === $lesson->id);
