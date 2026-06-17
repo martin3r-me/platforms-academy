@@ -5,7 +5,6 @@ namespace Platform\Academy\Livewire;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Platform\Academy\Models\AcademyPath;
-use Platform\Academy\Models\AcademyTopic;
 
 class Sidebar extends Component
 {
@@ -16,11 +15,11 @@ class Sidebar extends Component
         if (!$user) {
             return view('academy::livewire.sidebar', [
                 'paths' => collect(),
-                'topics' => collect(),
             ]);
         }
 
         $teamId = $user->currentTeam->id;
+        $userId = $user->id;
 
         $paths = AcademyPath::query()
             ->where('team_id', $teamId)
@@ -28,19 +27,17 @@ class Sidebar extends Component
             ->orderBy('sort_order')
             ->orderBy('title')
             ->limit(10)
-            ->get();
-
-        $topics = AcademyTopic::query()
-            ->where('team_id', $teamId)
-            ->withCount('publishedLessons')
-            ->orderBy('sort_order')
-            ->orderBy('title')
-            ->limit(15)
-            ->get();
+            ->get()
+            ->map(function (AcademyPath $path) use ($userId) {
+                $summary = $path->progressFor($userId);
+                $path->setAttribute('progress_pct', $summary['pct']);
+                $path->setAttribute('progress_completed', $summary['completed']);
+                $path->setAttribute('progress_total', $summary['total']);
+                return $path;
+            });
 
         return view('academy::livewire.sidebar', [
             'paths' => $paths,
-            'topics' => $topics,
         ]);
     }
 }

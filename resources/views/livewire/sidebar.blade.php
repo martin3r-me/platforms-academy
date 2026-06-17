@@ -8,7 +8,7 @@
             @svg('heroicon-o-home', 'w-4 h-4 text-[var(--ui-secondary)]')
             <span class="ml-2 text-sm">Dashboard</span>
         </x-ui-sidebar-item>
-        <x-ui-sidebar-item :href="route('academy.paths.index')" :active="request()->routeIs('academy.paths.*')">
+        <x-ui-sidebar-item :href="route('academy.paths.index')" :active="request()->routeIs('academy.paths.index')">
             @svg('heroicon-o-map', 'w-4 h-4 text-[var(--ui-secondary)]')
             <span class="ml-2 text-sm">Lernpfade</span>
         </x-ui-sidebar-item>
@@ -19,24 +19,17 @@
     </x-ui-sidebar-list>
 
     @if($paths->isNotEmpty())
-        <x-ui-sidebar-list label="Lernpfade">
+        <x-ui-sidebar-list label="Aktive Lernpfade">
             @foreach($paths as $path)
                 <x-ui-sidebar-item :href="route('academy.paths.show', ['uuid' => $path->uuid])" :active="request()->is('*/academy/paths/' . $path->uuid)">
                     @svg($path->icon ?: 'heroicon-o-map-pin', 'w-4 h-4 text-[var(--ui-secondary)]')
                     <span class="ml-2 text-sm truncate">{{ $path->title }}</span>
-                </x-ui-sidebar-item>
-            @endforeach
-        </x-ui-sidebar-list>
-    @endif
-
-    @if($topics->isNotEmpty())
-        <x-ui-sidebar-list label="Themen">
-            @foreach($topics as $topic)
-                <x-ui-sidebar-item :href="route('academy.topics.show', ['uuid' => $topic->uuid])" :active="request()->is('*/academy/topics/' . $topic->uuid)">
-                    @svg($topic->icon ?: 'heroicon-o-folder', 'w-4 h-4 text-[var(--ui-secondary)]')
-                    <span class="ml-2 text-sm truncate">{{ $topic->title }}</span>
                     <x-slot name="trailing">
-                        <x-ui-badge variant="muted" size="xs">{{ $topic->published_lessons_count }}</x-ui-badge>
+                        @if($path->progress_pct >= 100)
+                            @svg('heroicon-s-check-circle', 'w-4 h-4 text-emerald-500')
+                        @else
+                            <span class="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">{{ $path->progress_pct }}%</span>
+                        @endif
                     </x-slot>
                 </x-ui-sidebar-item>
             @endforeach
