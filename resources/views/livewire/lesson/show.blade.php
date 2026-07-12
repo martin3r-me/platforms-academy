@@ -234,13 +234,7 @@
             ['label' => 'Bibliothek', 'href' => route('academy.topics.index')],
             ['label' => $lesson->topic->title, 'href' => route('academy.topics.show', ['uuid' => $lesson->topic->uuid])],
             ['label' => $lesson->title, 'href' => route('academy.lessons.show', ['uuid' => $lesson->uuid])],
-        ]">
-            <button @click="Alpine?.store('page') && (Alpine.store('page')['activityOpen'] = !Alpine.store('page')['activityOpen'])"
-                class="inline-flex items-center gap-1.5 px-2.5 py-1.5 text-sm rounded-lg text-[var(--ui-muted)] hover:text-[var(--ui-secondary)] hover:bg-[var(--ui-muted-5)] transition-colors">
-                @svg('heroicon-o-information-circle', 'w-4 h-4')
-                <span class="hidden sm:inline">Info</span>
-            </button>
-        </x-ui-page-actionbar>
+        ]" />
     </x-slot>
 
     <x-slot name="sidebar">
@@ -264,66 +258,6 @@
                     </a>
                 @endforeach
             </nav>
-        </x-ui-page-sidebar>
-    </x-slot>
-
-    <x-slot name="activity">
-        <x-ui-page-sidebar title="Lesson" width="w-80" :defaultOpen="false" storeKey="activityOpen" side="right">
-            <div class="p-5 space-y-5">
-                <div>
-                    <h3 class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3">Status</h3>
-                    @if($isCompleted)
-                        <div class="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center gap-2">
-                            @svg('heroicon-s-check-circle', 'w-5 h-5 text-emerald-500')
-                            <span class="text-sm font-medium text-emerald-700 dark:text-emerald-300">Abgeschlossen</span>
-                        </div>
-                    @else
-                        <div class="p-3 rounded-lg bg-amber-500/5 border border-amber-500/15 flex items-center gap-2">
-                            @svg('heroicon-o-clock', 'w-5 h-5 text-amber-500')
-                            <span class="text-sm font-medium text-amber-700 dark:text-amber-300">In Bearbeitung</span>
-                        </div>
-                    @endif
-                </div>
-
-                <div>
-                    <h3 class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3">Thema</h3>
-                    <a wire:navigate href="{{ route('academy.topics.show', ['uuid' => $lesson->topic->uuid]) }}"
-                       class="block p-3 rounded-lg bg-black/[0.02] dark:bg-white/[0.03] hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition">
-                        <div class="flex items-center gap-2">
-                            @svg($lesson->topic->icon ?: 'heroicon-o-folder', 'w-4 h-4 text-gray-500')
-                            <span class="text-sm font-medium text-gray-900 dark:text-gray-100">{{ $lesson->topic->title }}</span>
-                        </div>
-                    </a>
-                </div>
-
-                @if($pathMemberships->isNotEmpty())
-                    <div>
-                        <h3 class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3">Lernpfade</h3>
-                        <div class="space-y-1">
-                            @foreach($pathMemberships as $p)
-                                <a wire:navigate href="{{ route('academy.paths.show', ['uuid' => $p->uuid]) }}"
-                                   class="block p-2 rounded-lg bg-black/[0.02] dark:bg-white/[0.03] hover:bg-black/[0.04] dark:hover:bg-white/[0.06] transition">
-                                    <div class="flex items-center gap-2">
-                                        @svg($p->icon ?: 'heroicon-o-map', 'w-4 h-4 text-gray-500')
-                                        <span class="text-sm text-gray-900 dark:text-gray-100 truncate">{{ $p->title }}</span>
-                                    </div>
-                                </a>
-                            @endforeach
-                        </div>
-                    </div>
-                @endif
-
-                <div>
-                    <h3 class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3">Meta</h3>
-                    <div class="space-y-2 text-xs text-gray-500 dark:text-gray-400">
-                        @if($lesson->estimated_minutes)
-                            <div><span class="font-medium text-gray-700 dark:text-gray-300">Dauer:</span> ca. {{ $lesson->estimated_minutes }} min</div>
-                        @endif
-                        <div><span class="font-medium text-gray-700 dark:text-gray-300">Status:</span> {{ $lesson->status }}</div>
-                        <div><span class="font-medium text-gray-700 dark:text-gray-300">Aktualisiert:</span> {{ $lesson->updated_at?->diffForHumans() }}</div>
-                    </div>
-                </div>
-            </div>
         </x-ui-page-sidebar>
     </x-slot>
 
@@ -361,69 +295,123 @@
             </div>
         </div>
 
-        {{-- ===== READER ===== --}}
-        <article class="academy-lesson-content max-w-[46rem] mx-auto">
-            {!! $renderedContent !!}
-        </article>
+        {{-- ===== CONTENT: Reader (füllt) + sichtbares Panel rechts ===== --}}
+        <div class="grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_320px] gap-8 xl:gap-12 items-start">
 
-        {{-- ===== ABSCHLUSS ===== --}}
-        <div class="max-w-[46rem] mx-auto space-y-4">
-            @if($isCompleted)
-                <div class="rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.07] p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div class="flex items-center gap-3">
-                        @svg('heroicon-s-check-circle', 'w-7 h-7 text-emerald-500 flex-shrink-0')
-                        <div>
-                            <div class="font-semibold text-gray-900 dark:text-gray-100">Lektion abgeschlossen</div>
-                            <button wire:click="reopen" class="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition">Wieder als offen markieren</button>
-                        </div>
-                    </div>
+            {{-- Reader + Prev/Next --}}
+            <div class="min-w-0 space-y-10">
+                <article class="academy-lesson-content">
+                    {!! $renderedContent !!}
+                </article>
+
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-[var(--ui-border)]">
+                    @if($prev)
+                        <a wire:navigate href="{{ route('academy.lessons.show', ['uuid' => $prev->uuid]) }}"
+                           class="group flex items-center gap-3 p-4 mt-6 rounded-2xl border border-[var(--ui-border)] bg-[var(--ui-surface)] hover:bg-[var(--ui-muted-5)] hover:-translate-y-0.5 transition-all">
+                            @svg('heroicon-o-arrow-left', 'w-5 h-5 text-gray-400 flex-shrink-0')
+                            <div class="min-w-0">
+                                <div class="text-[10px] uppercase tracking-wider text-gray-400" style="font-family: var(--ui-font-mono);">Vorherige</div>
+                                <div class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{{ $prev->title }}</div>
+                            </div>
+                        </a>
+                    @else
+                        <div class="hidden sm:block"></div>
+                    @endif
+
                     @if($next)
                         <a wire:navigate href="{{ route('academy.lessons.show', ['uuid' => $next->uuid]) }}"
-                           class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--ui-primary)] text-white text-sm font-semibold hover:opacity-90 transition whitespace-nowrap">
-                            Nächste Lektion @svg('heroicon-s-arrow-right', 'w-4 h-4')
+                           class="group flex items-center justify-end gap-3 p-4 sm:mt-6 rounded-2xl border border-[var(--ui-border)] bg-[var(--ui-surface)] hover:bg-[var(--ui-muted-5)] hover:-translate-y-0.5 transition-all text-right">
+                            <div class="min-w-0">
+                                <div class="text-[10px] uppercase tracking-wider text-gray-400" style="font-family: var(--ui-font-mono);">Nächste</div>
+                                <div class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{{ $next->title }}</div>
+                            </div>
+                            @svg('heroicon-o-arrow-right', 'w-5 h-5 text-gray-400 flex-shrink-0')
                         </a>
                     @endif
                 </div>
-            @else
-                <div class="rounded-2xl border border-[var(--ui-border)] bg-[var(--ui-muted-5)] p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                    <div>
-                        <div class="font-semibold text-gray-900 dark:text-gray-100">Fertig mit dieser Lektion?</div>
-                        <div class="text-sm text-gray-500 dark:text-gray-400">Markier sie als erledigt, um deinen Fortschritt zu tracken.</div>
-                    </div>
-                    <button wire:click="markComplete"
-                            class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--ui-primary)] text-white text-sm font-semibold hover:opacity-90 transition whitespace-nowrap"
-                            style="box-shadow: 0 6px 16px -6px rgba(79,70,229,.7);">
-                        @svg('heroicon-o-check', 'w-4 h-4') Als erledigt markieren
-                    </button>
-                </div>
-            @endif
-
-            {{-- Prev / Next --}}
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                @if($prev)
-                    <a wire:navigate href="{{ route('academy.lessons.show', ['uuid' => $prev->uuid]) }}"
-                       class="group flex items-center gap-3 p-4 rounded-2xl border border-[var(--ui-border)] bg-[var(--ui-surface)] hover:bg-[var(--ui-muted-5)] hover:-translate-y-0.5 transition-all">
-                        @svg('heroicon-o-arrow-left', 'w-5 h-5 text-gray-400 flex-shrink-0')
-                        <div class="min-w-0">
-                            <div class="text-[10px] uppercase tracking-wider text-gray-400" style="font-family: var(--ui-font-mono);">Vorherige</div>
-                            <div class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{{ $prev->title }}</div>
-                        </div>
-                    </a>
-                @else
-                    <div class="hidden sm:block"></div>
-                @endif
-
-                @if($next)
-                    <a wire:navigate href="{{ route('academy.lessons.show', ['uuid' => $next->uuid]) }}"
-                       class="group flex items-center justify-end gap-3 p-4 rounded-2xl border border-[var(--ui-border)] bg-[var(--ui-surface)] hover:bg-[var(--ui-muted-5)] hover:-translate-y-0.5 transition-all text-right">
-                        <div class="min-w-0">
-                            <div class="text-[10px] uppercase tracking-wider text-gray-400" style="font-family: var(--ui-font-mono);">Nächste</div>
-                            <div class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{{ $next->title }}</div>
-                        </div>
-                        @svg('heroicon-o-arrow-right', 'w-5 h-5 text-gray-400 flex-shrink-0')
-                    </a>
-                @endif
             </div>
+
+            {{-- Sichtbares Panel rechts (ersetzt die einklappbare Sidebar) --}}
+            <aside class="lg:sticky lg:top-4 space-y-4">
+
+                {{-- Aktion / Status --}}
+                @if($isCompleted)
+                    <div class="rounded-2xl border border-emerald-500/25 bg-emerald-500/[0.07] p-5 space-y-3">
+                        <div class="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 font-semibold">
+                            @svg('heroicon-s-check-circle', 'w-6 h-6') Abgeschlossen
+                        </div>
+                        @if($next)
+                            <a wire:navigate href="{{ route('academy.lessons.show', ['uuid' => $next->uuid]) }}"
+                               class="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-[var(--ui-primary)] text-white text-sm font-semibold hover:opacity-90 transition">
+                                Nächste Lektion @svg('heroicon-s-arrow-right', 'w-4 h-4')
+                            </a>
+                        @endif
+                        <button wire:click="reopen" class="w-full text-center text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition">Wieder als offen markieren</button>
+                    </div>
+                @else
+                    <div class="rounded-2xl border border-[var(--ui-border)] bg-[var(--ui-muted-5)] p-5 space-y-3">
+                        <div>
+                            <div class="font-semibold text-gray-900 dark:text-gray-100">Fertig mit der Lektion?</div>
+                            <div class="text-[13px] text-gray-500 dark:text-gray-400">Markier sie als erledigt, um deinen Fortschritt zu tracken.</div>
+                        </div>
+                        <button wire:click="markComplete"
+                                class="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-[var(--ui-primary)] text-white text-sm font-semibold hover:opacity-90 transition"
+                                style="box-shadow: 0 6px 16px -6px rgba(79,70,229,.7);">
+                            @svg('heroicon-o-check', 'w-4 h-4') Als erledigt markieren
+                        </button>
+                        @if($next)
+                            <a wire:navigate href="{{ route('academy.lessons.show', ['uuid' => $next->uuid]) }}"
+                               class="flex items-center justify-center gap-2 w-full px-4 py-2 rounded-xl border border-[var(--ui-border)] bg-[var(--ui-surface)] text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-[var(--ui-muted-5)] transition">
+                                Nächste Lektion @svg('heroicon-o-arrow-right', 'w-4 h-4')
+                            </a>
+                        @endif
+                    </div>
+                @endif
+
+                {{-- Meta --}}
+                <div class="rounded-2xl border border-[var(--ui-border)] bg-[var(--ui-surface)] p-5 space-y-3">
+                    <a wire:navigate href="{{ route('academy.topics.show', ['uuid' => $lesson->topic->uuid]) }}"
+                       class="flex items-center gap-2.5 group">
+                        <span class="w-8 h-8 rounded-lg bg-[var(--ui-muted-5)] border border-[var(--ui-border)] flex items-center justify-center flex-shrink-0" style="color: {{ $accentColor }};">
+                            @svg($lesson->topic->icon ?: 'heroicon-o-folder', 'w-4 h-4')
+                        </span>
+                        <div class="min-w-0">
+                            <div class="text-[10px] uppercase tracking-wider text-gray-400" style="font-family: var(--ui-font-mono);">Thema</div>
+                            <div class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate group-hover:text-[var(--ui-primary)] transition">{{ $lesson->topic->title }}</div>
+                        </div>
+                    </a>
+
+                    @if($lesson->estimated_minutes)
+                        <div class="h-px bg-[var(--ui-border)]"></div>
+                        <div class="flex items-center justify-between text-[13px]">
+                            <span class="text-gray-500 dark:text-gray-400">Dauer</span>
+                            <span class="font-medium text-gray-900 dark:text-gray-100" style="font-family: var(--ui-font-mono);">~{{ $lesson->estimated_minutes }} min</span>
+                        </div>
+                    @endif
+                    @if($num)
+                        <div class="flex items-center justify-between text-[13px]">
+                            <span class="text-gray-500 dark:text-gray-400">Position</span>
+                            <span class="font-medium text-gray-900 dark:text-gray-100" style="font-family: var(--ui-font-mono);">{{ $num }} / {{ $count }}</span>
+                        </div>
+                    @endif
+                </div>
+
+                {{-- Kurse, in denen diese Lektion vorkommt --}}
+                @if($pathMemberships->isNotEmpty())
+                    <div class="rounded-2xl border border-[var(--ui-border)] bg-[var(--ui-surface)] p-5">
+                        <div class="text-[10px] uppercase tracking-wider text-gray-400 mb-3" style="font-family: var(--ui-font-mono);">Teil dieser Kurse</div>
+                        <div class="space-y-1.5">
+                            @foreach($pathMemberships as $p)
+                                <a wire:navigate href="{{ route('academy.paths.show', ['uuid' => $p->uuid]) }}"
+                                   class="flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 hover:text-[var(--ui-primary)] transition">
+                                    <span class="w-1.5 h-1.5 rounded-full flex-shrink-0" style="background: {{ $p->coverColor() }};"></span>
+                                    <span class="truncate">{{ $p->title }}</span>
+                                </a>
+                            @endforeach
+                        </div>
+                    </div>
+                @endif
+            </aside>
         </div>
     </x-ui-page-container>
 </x-ui-page>
