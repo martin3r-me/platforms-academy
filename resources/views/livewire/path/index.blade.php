@@ -60,8 +60,14 @@
         <div class="space-y-6">
 
             <div>
-                <h1 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100" style="font-family: var(--ui-font-mono);">Kurskatalog</h1>
-                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Kuratierte Kurse aus mehreren Lektionen — schreib dich ein und tracke deinen Fortschritt</p>
+                <div class="flex items-center gap-2">
+                    <h1 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100" style="font-family: var(--ui-font-mono);">Kurskatalog</h1>
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[var(--ui-primary-10)] text-[var(--ui-primary)]" style="font-family: var(--ui-font-mono);">geführt</span>
+                </div>
+                <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 max-w-2xl">
+                    Kuratierte Lernpfade in fester Reihenfolge — schreib dich ein und arbeite dich mit Fortschritt durch.
+                    Nur eine einzelne Lektion gesucht? <a wire:navigate href="{{ route('academy.topics.index') }}" class="text-[var(--ui-primary)] font-medium hover:underline">Stöber frei in der Bibliothek</a>.
+                </p>
             </div>
 
             @if($activeCategory)

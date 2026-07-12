@@ -63,10 +63,13 @@
         <div class="space-y-6">
 
             <div>
-                <h1 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100" style="font-family: var(--ui-font-mono);">Bibliothek</h1>
+                <div class="flex items-center gap-2">
+                    <h1 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100" style="font-family: var(--ui-font-mono);">Bibliothek</h1>
+                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[var(--ui-muted-10)] text-gray-500 dark:text-gray-400" style="font-family: var(--ui-font-mono);">frei</span>
+                </div>
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1 max-w-2xl">
-                    Stöbere frei nach Thema und pick dir einzelne Lektionen heraus. Wenn du lieber kuratiert lernst,
-                    <a wire:navigate href="{{ route('academy.paths.index') }}" class="text-[var(--ui-primary)] font-medium hover:underline">geh über die Kurse</a>.
+                    Alle Lektionen nach Thema — stöber frei und pick dir einzelne heraus, ohne Reihenfolge oder Einschreiben.
+                    Lieber geführt mit Fortschritt? <a wire:navigate href="{{ route('academy.paths.index') }}" class="text-[var(--ui-primary)] font-medium hover:underline">Nimm die Kurse</a>.
                 </p>
             </div>
 

@@ -86,6 +86,38 @@
                 </p>
             </div>
 
+            {{-- ZWEI WEGE ZU LERNEN --}}
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <a wire:navigate href="{{ route('academy.paths.index') }}"
+                   class="group rounded-2xl border border-[var(--ui-border)] bg-[var(--ui-surface)] p-5 flex gap-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
+                    <span class="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center bg-[var(--ui-primary-10)] text-[var(--ui-primary)]">
+                        @svg('heroicon-o-rectangle-stack', 'w-5 h-5')
+                    </span>
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-2">
+                            <h3 class="font-semibold text-[15px] text-gray-900 dark:text-gray-100">Kurse</h3>
+                            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[var(--ui-primary-10)] text-[var(--ui-primary)]" style="font-family: var(--ui-font-mono);">geführt</span>
+                        </div>
+                        <p class="text-[13px] text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">Kuratierte Lernpfade in fester Reihenfolge — einschreiben, dranbleiben, abschließen.</p>
+                        <span class="inline-flex items-center gap-1 text-[12px] font-semibold text-[var(--ui-primary)] mt-2">Zu den Kursen @svg('heroicon-o-arrow-right', 'w-3.5 h-3.5')</span>
+                    </div>
+                </a>
+                <a wire:navigate href="{{ route('academy.topics.index') }}"
+                   class="group rounded-2xl border border-[var(--ui-border)] bg-[var(--ui-surface)] p-5 flex gap-4 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
+                    <span class="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center bg-[var(--ui-muted-10)] text-gray-600 dark:text-gray-300">
+                        @svg('heroicon-o-book-open', 'w-5 h-5')
+                    </span>
+                    <div class="min-w-0">
+                        <div class="flex items-center gap-2">
+                            <h3 class="font-semibold text-[15px] text-gray-900 dark:text-gray-100">Bibliothek</h3>
+                            <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[var(--ui-muted-10)] text-gray-500 dark:text-gray-400" style="font-family: var(--ui-font-mono);">frei</span>
+                        </div>
+                        <p class="text-[13px] text-gray-500 dark:text-gray-400 mt-1 leading-relaxed">Alle Lektionen nach Thema. Frei stöbern und einzelne herauspicken — ohne Reihenfolge.</p>
+                        <span class="inline-flex items-center gap-1 text-[12px] font-semibold text-gray-700 dark:text-gray-300 mt-2">Zur Bibliothek @svg('heroicon-o-arrow-right', 'w-3.5 h-3.5')</span>
+                    </div>
+                </a>
+            </div>
+
             {{-- MEINE ACADEMY --}}
             @if($activeCourses->isNotEmpty())
                 <div>
