@@ -319,50 +319,102 @@
         </x-ui-page-sidebar>
     </x-slot>
 
+    @php
+        $pos = $topicLessons->search(fn ($l) => $l->id === $lesson->id);
+        $num = $pos === false ? null : $pos + 1;
+        $count = $topicLessons->count();
+    @endphp
+
     <x-ui-page-container>
-        <div class="max-w-3xl mx-auto space-y-6">
 
-            <div>
-                <h1 class="text-2xl font-medium tracking-tight text-gray-900 dark:text-gray-100">{{ $lesson->title }}</h1>
+        {{-- ===== HERO ===== --}}
+        <div class="relative overflow-hidden rounded-3xl border border-[var(--ui-border)]"
+             style="background-image: linear-gradient(135deg, var(--ui-primary-10), transparent 62%);">
+            <div class="p-8 md:p-10 max-w-3xl">
+                <div class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em]" style="font-family: var(--ui-font-mono);">
+                    <a wire:navigate href="{{ route('academy.topics.show', ['uuid' => $lesson->topic->uuid]) }}" class="text-[var(--ui-primary)] hover:underline">{{ $lesson->topic->title }}</a>
+                    @if($num)
+                        <span class="text-gray-300">·</span>
+                        <span class="text-gray-400">Lektion {{ $num }} / {{ $count }}</span>
+                    @endif
+                </div>
+                <h1 class="mt-3 text-3xl md:text-[2.4rem] leading-[1.1] font-bold tracking-tight text-gray-900 dark:text-gray-100" style="font-family: var(--ui-font-mono); text-wrap: balance;">{{ $lesson->title }}</h1>
                 @if($lesson->summary)
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">{{ $lesson->summary }}</p>
+                    <p class="mt-3 text-[15px] md:text-lg leading-relaxed text-gray-600 dark:text-gray-300">{{ $lesson->summary }}</p>
                 @endif
-                @if($lesson->estimated_minutes)
-                    <div class="text-xs text-gray-500 dark:text-gray-400 mt-1">⏱ ca. {{ $lesson->estimated_minutes }} Minuten</div>
-                @endif
-            </div>
-
-            <article class="academy-lesson-content">
-                {!! $renderedContent !!}
-            </article>
-
-            <div class="flex items-center justify-between gap-3 pt-6 border-t border-[var(--ui-border)]">
-                <div class="flex-1">
-                    @if($prev)
-                        <a wire:navigate href="{{ route('academy.lessons.show', ['uuid' => $prev->uuid]) }}"
-                           class="text-sm text-gray-500 dark:text-gray-400 hover:underline">← {{ $prev->title }}</a>
+                <div class="mt-4 flex items-center gap-4 text-xs" style="font-family: var(--ui-font-mono);">
+                    @if($lesson->estimated_minutes)
+                        <span class="inline-flex items-center gap-1.5 text-gray-500 dark:text-gray-400">@svg('heroicon-o-clock', 'w-4 h-4') ~{{ $lesson->estimated_minutes }} min</span>
                     @endif
-                </div>
-
-                <div class="flex-shrink-0">
                     @if($isCompleted)
-                        <x-ui-button wire:click="reopen" variant="secondary-outline" size="sm">
-                            @svg('heroicon-s-check-circle', 'w-4 h-4 mr-1 inline text-emerald-500')
-                            Abgeschlossen
-                        </x-ui-button>
-                    @else
-                        <x-ui-button wire:click="markComplete" variant="primary" size="sm">
-                            Als erledigt markieren
-                        </x-ui-button>
+                        <span class="inline-flex items-center gap-1.5 text-emerald-600 dark:text-emerald-400 font-semibold">@svg('heroicon-s-check-circle', 'w-4 h-4') Abgeschlossen</span>
                     @endif
                 </div>
+            </div>
+        </div>
 
-                <div class="flex-1 text-right">
+        {{-- ===== READER ===== --}}
+        <article class="academy-lesson-content max-w-[46rem] mx-auto">
+            {!! $renderedContent !!}
+        </article>
+
+        {{-- ===== ABSCHLUSS ===== --}}
+        <div class="max-w-[46rem] mx-auto space-y-4">
+            @if($isCompleted)
+                <div class="rounded-2xl border border-emerald-500/20 bg-emerald-500/[0.07] p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div class="flex items-center gap-3">
+                        @svg('heroicon-s-check-circle', 'w-7 h-7 text-emerald-500 flex-shrink-0')
+                        <div>
+                            <div class="font-semibold text-gray-900 dark:text-gray-100">Lektion abgeschlossen</div>
+                            <button wire:click="reopen" class="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition">Wieder als offen markieren</button>
+                        </div>
+                    </div>
                     @if($next)
                         <a wire:navigate href="{{ route('academy.lessons.show', ['uuid' => $next->uuid]) }}"
-                           class="text-sm text-gray-500 dark:text-gray-400 hover:underline">{{ $next->title }} →</a>
+                           class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--ui-primary)] text-white text-sm font-semibold hover:opacity-90 transition whitespace-nowrap">
+                            Nächste Lektion @svg('heroicon-s-arrow-right', 'w-4 h-4')
+                        </a>
                     @endif
                 </div>
+            @else
+                <div class="rounded-2xl border border-[var(--ui-border)] bg-[var(--ui-muted-5)] p-5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <div class="font-semibold text-gray-900 dark:text-gray-100">Fertig mit dieser Lektion?</div>
+                        <div class="text-sm text-gray-500 dark:text-gray-400">Markier sie als erledigt, um deinen Fortschritt zu tracken.</div>
+                    </div>
+                    <button wire:click="markComplete"
+                            class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[var(--ui-primary)] text-white text-sm font-semibold hover:opacity-90 transition whitespace-nowrap"
+                            style="box-shadow: 0 6px 16px -6px rgba(79,70,229,.7);">
+                        @svg('heroicon-o-check', 'w-4 h-4') Als erledigt markieren
+                    </button>
+                </div>
+            @endif
+
+            {{-- Prev / Next --}}
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                @if($prev)
+                    <a wire:navigate href="{{ route('academy.lessons.show', ['uuid' => $prev->uuid]) }}"
+                       class="group flex items-center gap-3 p-4 rounded-2xl border border-[var(--ui-border)] bg-[var(--ui-surface)] hover:bg-[var(--ui-muted-5)] hover:-translate-y-0.5 transition-all">
+                        @svg('heroicon-o-arrow-left', 'w-5 h-5 text-gray-400 flex-shrink-0')
+                        <div class="min-w-0">
+                            <div class="text-[10px] uppercase tracking-wider text-gray-400" style="font-family: var(--ui-font-mono);">Vorherige</div>
+                            <div class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{{ $prev->title }}</div>
+                        </div>
+                    </a>
+                @else
+                    <div class="hidden sm:block"></div>
+                @endif
+
+                @if($next)
+                    <a wire:navigate href="{{ route('academy.lessons.show', ['uuid' => $next->uuid]) }}"
+                       class="group flex items-center justify-end gap-3 p-4 rounded-2xl border border-[var(--ui-border)] bg-[var(--ui-surface)] hover:bg-[var(--ui-muted-5)] hover:-translate-y-0.5 transition-all text-right">
+                        <div class="min-w-0">
+                            <div class="text-[10px] uppercase tracking-wider text-gray-400" style="font-family: var(--ui-font-mono);">Nächste</div>
+                            <div class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{{ $next->title }}</div>
+                        </div>
+                        @svg('heroicon-o-arrow-right', 'w-5 h-5 text-gray-400 flex-shrink-0')
+                    </a>
+                @endif
             </div>
         </div>
     </x-ui-page-container>

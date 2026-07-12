@@ -61,144 +61,143 @@
                         <div><span class="font-medium text-gray-700 dark:text-gray-300">Status:</span> {{ $path->status }}</div>
                     </div>
                 </div>
+
+                @if($enrollment)
+                    <button wire:click="drop"
+                            wire:confirm="Kurs wirklich verlassen? Dein Lektions-Fortschritt bleibt erhalten."
+                            class="w-full text-center text-xs text-gray-400 hover:text-red-500 transition">
+                        Kurs verlassen
+                    </button>
+                @endif
             </div>
         </x-ui-page-sidebar>
     </x-slot>
 
+    @php
+        $coverColor = $path->coverColor();
+        $totalMin = $lessons->sum('estimated_minutes');
+        $code = $path->code ?: strtoupper(\Illuminate\Support\Str::substr($path->slug, 0, 6));
+        $prefix = $path->category?->code_prefix ?: (string) \Illuminate\Support\Str::of($code)->before('-');
+    @endphp
+
     <x-ui-page-container>
-        <div class="max-w-5xl mx-auto space-y-6">
+        <div class="max-w-5xl mx-auto space-y-8">
 
-            {{-- Hero-Cover --}}
-            <div class="rounded-2xl overflow-hidden border border-[var(--ui-border)] shadow-sm">
-                @include('academy::partials.course-cover', ['path' => $path, 'size' => 'hero'])
-            </div>
+            {{-- ===== HERO ===== --}}
+            <div class="relative overflow-hidden rounded-3xl text-white shadow-lg"
+                 style="background-image: linear-gradient(135deg, color-mix(in srgb, {{ $coverColor }} 92%, #ffffff), color-mix(in srgb, {{ $coverColor }} 62%, #000000));">
+                <div class="pointer-events-none absolute inset-0" style="background-image: repeating-linear-gradient(115deg, rgba(255,255,255,.06) 0 1px, transparent 1px 26px);"></div>
+                <div class="pointer-events-none absolute -right-6 -bottom-16 font-bold leading-none select-none" style="font-family: var(--ui-font-mono); font-size: 220px; color: rgba(255,255,255,.12); letter-spacing: -.05em;">{{ $prefix }}</div>
 
-            @if($path->description)
-                <p class="text-[15px] leading-relaxed text-gray-600 dark:text-gray-300 max-w-2xl">{{ $path->description }}</p>
-            @endif
+                <div class="relative z-10 p-8 md:p-11 flex flex-col gap-5">
+                    <div class="flex items-center gap-2 flex-wrap">
+                        <span class="text-[11px] font-bold tracking-wider px-2.5 py-1 rounded-full bg-white/15 backdrop-blur" style="font-family: var(--ui-font-mono);">{{ $code }}</span>
+                        @if($path->category)
+                            <span class="text-[11px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full bg-white/15 backdrop-blur">{{ $path->category->title }}</span>
+                        @endif
+                        @if($path->levelLabel())
+                            <span class="text-[11px] font-semibold uppercase tracking-wider px-2.5 py-1 rounded-full bg-white/90 text-gray-900" style="font-family: var(--ui-font-mono);">{{ $path->levelLabel() }}</span>
+                        @endif
+                    </div>
 
-            <div class="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-6 items-start">
+                    <h1 class="text-3xl md:text-[2.6rem] leading-[1.08] font-bold tracking-tight max-w-3xl" style="font-family: var(--ui-font-mono); text-wrap: balance;">{{ $path->title }}</h1>
 
-                {{-- Lektionen mit beschreibenden Texten --}}
-                <div class="order-2 lg:order-1">
-                    <h2 class="text-xs font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-4"
-                        style="font-family: var(--ui-font-mono);">
-                        {{ $summary['total'] }} {{ $summary['total'] == 1 ? 'Lektion' : 'Lektionen' }}
-                    </h2>
-
-                    @if($lessons->isEmpty())
-                        <div class="p-6 text-center rounded-xl border border-[var(--ui-border)] bg-[var(--ui-muted-5)] text-gray-500 dark:text-gray-400">
-                            Diesem Kurs sind noch keine Lektionen zugeordnet.
-                        </div>
-                    @else
-                        <ol class="divide-y divide-[var(--ui-border)] border-y border-[var(--ui-border)]">
-                            @foreach($lessons as $i => $lesson)
-                                @php
-                                    $isDone = isset($completedSet[$lesson->id]);
-                                    $isCurrent = $resumeLesson && $resumeLesson->id === $lesson->id && !$isDone;
-                                @endphp
-                                <li>
-                                    <a wire:navigate href="{{ route('academy.lessons.show', ['uuid' => $lesson->uuid]) }}"
-                                       class="group flex gap-4 py-4 hover:bg-[var(--ui-muted-5)] -mx-3 px-3 rounded-lg transition">
-                                        <div class="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-sm font-semibold
-                                            @if($isDone) bg-emerald-500/15 text-emerald-600 dark:text-emerald-400
-                                            @elseif($isCurrent) bg-[var(--ui-primary)] text-white
-                                            @else bg-[var(--ui-muted-5)] border border-[var(--ui-border)] text-gray-500 dark:text-gray-400 @endif"
-                                            style="font-family: var(--ui-font-mono);">
-                                            @if($isDone) @svg('heroicon-s-check', 'w-4 h-4') @else {{ $i + 1 }} @endif
-                                        </div>
-                                        <div class="flex-1 min-w-0">
-                                            <div class="flex items-center gap-2 flex-wrap">
-                                                <span class="font-semibold text-[15px] text-gray-900 dark:text-gray-100">{{ $lesson->title }}</span>
-                                                @if($isCurrent)
-                                                    <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[var(--ui-primary-10)] text-[var(--ui-primary)]"
-                                                          style="font-family: var(--ui-font-mono);">Aktuell</span>
-                                                @endif
-                                            </div>
-                                            @if($lesson->summary)
-                                                <p class="text-[13px] text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed line-clamp-2">{{ $lesson->summary }}</p>
-                                            @endif
-                                        </div>
-                                        @if($lesson->estimated_minutes)
-                                            <div class="flex-shrink-0 text-[11px] text-gray-400 whitespace-nowrap pt-1" style="font-family: var(--ui-font-mono);">{{ $lesson->estimated_minutes }} min</div>
-                                        @endif
-                                    </a>
-                                </li>
-                            @endforeach
-                        </ol>
+                    @if($path->description)
+                        <p class="text-[15px] md:text-base leading-relaxed text-white/85 max-w-2xl">{{ $path->description }}</p>
                     @endif
-                </div>
 
-                {{-- Enroll / Fortschritt Sidebar --}}
-                <aside class="order-1 lg:order-2 lg:sticky lg:top-4">
-                    <div class="rounded-2xl border border-[var(--ui-border)] bg-[var(--ui-muted-5)] p-5 space-y-4">
+                    <div class="flex items-center gap-4 text-sm text-white/80" style="font-family: var(--ui-font-mono);">
+                        <span class="inline-flex items-center gap-1.5">@svg('heroicon-o-rectangle-stack', 'w-4 h-4') {{ $summary['total'] }} {{ $summary['total'] == 1 ? 'Lektion' : 'Lektionen' }}</span>
+                        @if($totalMin)
+                            <span class="inline-flex items-center gap-1.5">@svg('heroicon-o-clock', 'w-4 h-4') ~{{ $totalMin }} min</span>
+                        @endif
+                    </div>
 
+                    {{-- CTA --}}
+                    <div class="pt-1">
                         @if($enrollment)
-                            <div>
-                                <div class="text-xs uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1" style="font-family: var(--ui-font-mono);">Dein Fortschritt</div>
-                                <div class="flex items-baseline gap-1">
-                                    <span class="text-4xl font-bold tracking-tight text-gray-900 dark:text-gray-100" style="font-family: var(--ui-font-mono);">{{ $summary['pct'] }}</span>
-                                    <span class="text-lg text-gray-400" style="font-family: var(--ui-font-mono);">%</span>
-                                </div>
-                            </div>
-                            <div class="w-full bg-[var(--ui-muted-10)] rounded-full h-2">
-                                <div class="h-2 rounded-full bg-emerald-500 transition-all" style="width: {{ $summary['pct'] }}%"></div>
-                            </div>
-
                             @if($enrollment->isCompleted())
-                                <div class="inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-600 dark:text-emerald-400">
-                                    @svg('heroicon-s-check-badge', 'w-5 h-5') Abgeschlossen
+                                <div class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/95 text-sm font-semibold" style="color: {{ $coverColor }};">
+                                    @svg('heroicon-s-check-badge', 'w-5 h-5') Kurs abgeschlossen
                                 </div>
-                            @elseif($resumeLesson)
-                                <a wire:navigate href="{{ route('academy.lessons.show', ['uuid' => $resumeLesson->uuid]) }}"
-                                   class="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg bg-[var(--ui-primary)] text-white text-sm font-semibold hover:opacity-90 transition"
-                                   style="box-shadow: 0 6px 16px -6px rgba(79,70,229,.7);">
-                                    Weiterlernen
-                                    @svg('heroicon-s-arrow-right', 'w-4 h-4')
-                                </a>
+                            @else
+                                <div class="flex flex-col sm:flex-row sm:items-center gap-4">
+                                    @if($resumeLesson)
+                                        <a wire:navigate href="{{ route('academy.lessons.show', ['uuid' => $resumeLesson->uuid]) }}"
+                                           class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white text-sm font-bold shadow-md hover:shadow-lg hover:scale-[1.02] transition" style="color: {{ $coverColor }};">
+                                            Weiterlernen @svg('heroicon-s-arrow-right', 'w-4 h-4')
+                                        </a>
+                                    @endif
+                                    <div class="flex-1 max-w-xs">
+                                        <div class="flex items-center justify-between text-xs text-white/80 mb-1" style="font-family: var(--ui-font-mono);">
+                                            <span>{{ $summary['completed'] }} / {{ $summary['total'] }}</span>
+                                            <span>{{ $summary['pct'] }}%</span>
+                                        </div>
+                                        <div class="w-full bg-white/25 rounded-full h-2">
+                                            <div class="h-2 rounded-full bg-white" style="width: {{ $summary['pct'] }}%"></div>
+                                        </div>
+                                    </div>
+                                </div>
                             @endif
                         @else
-                            <div>
-                                <div class="text-sm text-gray-600 dark:text-gray-300 mb-1">Bereit loszulegen?</div>
-                                <div class="text-xs text-gray-500 dark:text-gray-400">Schreib dich ein, um deinen Fortschritt zu tracken.</div>
-                            </div>
                             <button wire:click="enroll"
-                                    class="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-lg bg-[var(--ui-primary)] text-white text-sm font-semibold hover:opacity-90 transition"
-                                    style="box-shadow: 0 6px 16px -6px rgba(79,70,229,.7);">
-                                @svg('heroicon-o-plus', 'w-4 h-4')
-                                In Kurs einschreiben
-                            </button>
-                        @endif
-
-                        <div class="h-px bg-[var(--ui-border)]"></div>
-
-                        <div class="space-y-2 text-[13px]">
-                            <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">Lektionen</span><span class="font-medium text-gray-900 dark:text-gray-100" style="font-family: var(--ui-font-mono);">{{ $summary['completed'] }} / {{ $summary['total'] }}</span></div>
-                            @if($path->levelLabel())
-                                <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">Level</span><span class="font-medium text-gray-900 dark:text-gray-100">{{ $path->levelLabel() }}</span></div>
-                            @endif
-                            @if($path->code)
-                                <div class="flex justify-between"><span class="text-gray-500 dark:text-gray-400">Code</span><span class="font-medium text-gray-900 dark:text-gray-100" style="font-family: var(--ui-font-mono);">{{ $path->code }}</span></div>
-                            @endif
-                        </div>
-
-                        @if($path->target_audience)
-                            <div class="h-px bg-[var(--ui-border)]"></div>
-                            <div class="text-[13px] text-gray-600 dark:text-gray-300 leading-relaxed">
-                                <span class="font-semibold text-gray-900 dark:text-gray-100">Für wen?</span><br>{{ $path->target_audience }}
-                            </div>
-                        @endif
-
-                        @if($enrollment)
-                            <button wire:click="drop"
-                                    wire:confirm="Kurs wirklich verlassen? Dein Lektions-Fortschritt bleibt erhalten."
-                                    class="w-full text-center text-xs text-gray-400 hover:text-red-500 transition pt-1">
-                                Kurs verlassen
+                                    class="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-xl bg-white text-sm font-bold shadow-md hover:shadow-lg hover:scale-[1.02] transition" style="color: {{ $coverColor }};">
+                                @svg('heroicon-o-plus', 'w-5 h-5') In Kurs einschreiben
                             </button>
                         @endif
                     </div>
-                </aside>
+                </div>
+            </div>
 
+            {{-- ===== LEHRPLAN ===== --}}
+            <div>
+                <div class="flex items-baseline justify-between mb-4">
+                    <h2 class="text-lg font-bold tracking-tight text-gray-900 dark:text-gray-100" style="font-family: var(--ui-font-mono);">Lehrplan</h2>
+                    <span class="text-xs text-gray-400" style="font-family: var(--ui-font-mono);">{{ $summary['completed'] }}/{{ $summary['total'] }} erledigt</span>
+                </div>
+
+                @if($lessons->isEmpty())
+                    <div class="p-6 text-center rounded-2xl border border-[var(--ui-border)] bg-[var(--ui-muted-5)] text-gray-500 dark:text-gray-400">
+                        Diesem Kurs sind noch keine Lektionen zugeordnet.
+                    </div>
+                @else
+                    <ol class="space-y-2">
+                        @foreach($lessons as $i => $lesson)
+                            @php
+                                $isDone = isset($completedSet[$lesson->id]);
+                                $isCurrent = $resumeLesson && $resumeLesson->id === $lesson->id && !$isDone;
+                            @endphp
+                            <li>
+                                <a wire:navigate href="{{ route('academy.lessons.show', ['uuid' => $lesson->uuid]) }}"
+                                   class="group flex items-center gap-4 p-4 rounded-2xl border transition-all hover:shadow-md hover:-translate-y-0.5
+                                          {{ $isCurrent ? 'border-[var(--ui-primary)]/40 bg-[var(--ui-primary-5)]' : 'border-[var(--ui-border)] bg-[var(--ui-surface)] hover:bg-[var(--ui-muted-5)]' }}">
+                                    <div class="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center text-sm font-bold
+                                        @if($isDone) bg-emerald-500/15 text-emerald-600 dark:text-emerald-400
+                                        @elseif($isCurrent) bg-[var(--ui-primary)] text-white
+                                        @else bg-[var(--ui-muted-5)] border border-[var(--ui-border)] text-gray-500 dark:text-gray-400 @endif"
+                                        style="font-family: var(--ui-font-mono);">
+                                        @if($isDone) @svg('heroicon-s-check', 'w-4 h-4') @else {{ $i + 1 }} @endif
+                                    </div>
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-center gap-2 flex-wrap">
+                                            <span class="font-semibold text-[15px] text-gray-900 dark:text-gray-100">{{ $lesson->title }}</span>
+                                            @if($isCurrent)
+                                                <span class="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-[var(--ui-primary-10)] text-[var(--ui-primary)]" style="font-family: var(--ui-font-mono);">Weiter hier</span>
+                                            @endif
+                                        </div>
+                                        @if($lesson->summary)
+                                            <p class="text-[13px] text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed line-clamp-1">{{ $lesson->summary }}</p>
+                                        @endif
+                                    </div>
+                                    @if($lesson->estimated_minutes)
+                                        <div class="flex-shrink-0 text-[11px] text-gray-400 whitespace-nowrap" style="font-family: var(--ui-font-mono);">{{ $lesson->estimated_minutes }} min</div>
+                                    @endif
+                                    @svg('heroicon-o-chevron-right', 'w-5 h-5 text-gray-300 group-hover:text-gray-400 flex-shrink-0 transition')
+                                </a>
+                            </li>
+                        @endforeach
+                    </ol>
+                @endif
             </div>
         </div>
     </x-ui-page-container>
