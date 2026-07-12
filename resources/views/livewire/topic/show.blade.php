@@ -7,7 +7,7 @@
     <x-slot name="actionbar">
         <x-ui-page-actionbar :breadcrumbs="[
             ['label' => 'Academy', 'href' => route('academy.dashboard'), 'icon' => 'academic-cap'],
-            ['label' => 'Themen', 'href' => route('academy.topics.index')],
+            ['label' => 'Bibliothek', 'href' => route('academy.topics.index')],
             ['label' => $topic->title, 'href' => route('academy.topics.show', ['uuid' => $topic->uuid])],
         ]">
             <button @click="Alpine?.store('page') && (Alpine.store('page')['activityOpen'] = !Alpine.store('page')['activityOpen'])"
@@ -22,23 +22,17 @@
         <x-ui-page-sidebar title="Thema" width="w-80" :defaultOpen="false" storeKey="activityOpen" side="right">
             <div class="p-5 space-y-5">
                 <div>
-                    <h3 class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3">Stats</h3>
-                    <div class="space-y-2">
-                        <div class="p-3 rounded-lg bg-black/[0.02] dark:bg-white/[0.03]">
-                            <div class="flex items-center justify-between">
-                                <span class="text-xs text-gray-500 dark:text-gray-400">Veröffentlicht</span>
-                                <span class="text-sm font-semibold text-gray-900 dark:text-gray-100">{{ $lessons->count() }}</span>
-                            </div>
+                    <h3 class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3">Fortschritt</h3>
+                    <div class="p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/15">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="text-xs text-gray-600 dark:text-gray-300">{{ $done }} / {{ $total }}</span>
+                            <span class="text-sm font-semibold text-emerald-700 dark:text-emerald-300">{{ $pct }}%</span>
                         </div>
-                        <div class="p-3 rounded-lg bg-emerald-500/5 border border-emerald-500/15">
-                            <div class="flex items-center justify-between">
-                                <span class="text-xs text-gray-600 dark:text-gray-300">Davon abgeschlossen</span>
-                                <span class="text-sm font-semibold text-emerald-700 dark:text-emerald-300">{{ count($completedSet) }}</span>
-                            </div>
+                        <div class="w-full bg-emerald-500/10 rounded-full h-1.5">
+                            <div class="bg-emerald-500 h-1.5 rounded-full" style="width: {{ $pct }}%"></div>
                         </div>
                     </div>
                 </div>
-
                 <div>
                     <h3 class="text-xs font-medium uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-3">Meta</h3>
                     <div class="space-y-2 text-xs text-gray-500 dark:text-gray-400">
@@ -51,47 +45,58 @@
     </x-slot>
 
     <x-ui-page-container>
-        <div class="space-y-6">
+        <div class="max-w-3xl mx-auto space-y-6">
 
             <div>
-                <h1 class="text-xl font-medium tracking-tight text-gray-900 dark:text-gray-100 flex items-center gap-2">
-                    @svg($topic->icon ?: 'heroicon-o-folder', 'w-6 h-6 text-gray-500 dark:text-gray-400')
-                    {{ $topic->title }}
-                </h1>
+                <div class="flex items-start gap-3">
+                    <div class="flex-shrink-0 w-11 h-11 rounded-xl bg-[var(--ui-muted-5)] border border-[var(--ui-border)] flex items-center justify-center text-gray-500 dark:text-gray-400">
+                        @svg($topic->icon ?: 'heroicon-o-folder', 'w-6 h-6')
+                    </div>
+                    <div class="min-w-0">
+                        <div class="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400" style="font-family: var(--ui-font-mono);">Bibliothek · Thema</div>
+                        <h1 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100" style="font-family: var(--ui-font-mono);">{{ $topic->title }}</h1>
+                    </div>
+                </div>
                 @if($topic->description)
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-2">{{ $topic->description }}</p>
+                    <p class="text-[15px] leading-relaxed text-gray-600 dark:text-gray-300 mt-3">{{ $topic->description }}</p>
+                @endif
+
+                @if($total > 0)
+                    <div class="mt-4 flex items-center gap-3">
+                        <div class="flex-1 max-w-xs bg-[var(--ui-muted-10)] rounded-full h-2">
+                            <div class="h-2 rounded-full bg-emerald-500" style="width: {{ $pct }}%"></div>
+                        </div>
+                        <span class="text-xs text-gray-500 dark:text-gray-400" style="font-family: var(--ui-font-mono);">{{ $done }} / {{ $total }} abgeschlossen</span>
+                    </div>
                 @endif
             </div>
 
             @if($lessons->isEmpty())
-                <div class="p-6 text-center rounded-xl border border-[var(--ui-border)] bg-[var(--ui-muted-5)] text-gray-500 dark:text-gray-400">
-                    Noch keine veröffentlichten Lessons in diesem Thema.
+                <div class="p-6 text-center rounded-2xl border border-[var(--ui-border)] bg-[var(--ui-muted-5)] text-gray-500 dark:text-gray-400">
+                    Noch keine veröffentlichten Lektionen in diesem Thema.
                 </div>
             @else
-                <ol class="space-y-2">
+                <ol class="divide-y divide-[var(--ui-border)] border-y border-[var(--ui-border)]">
                     @foreach($lessons as $i => $lesson)
+                        @php($isDone = isset($completedSet[$lesson->id]))
                         <li>
                             <a wire:navigate href="{{ route('academy.lessons.show', ['uuid' => $lesson->uuid]) }}"
-                               class="flex items-center gap-3 p-4 rounded-xl border border-[var(--ui-border)] bg-[var(--ui-muted-5)] hover:bg-[var(--ui-muted-10)] transition">
-                                <div class="flex-shrink-0 w-8 h-8 rounded-full bg-[var(--ui-muted-10)] flex items-center justify-center text-sm font-medium text-gray-700 dark:text-gray-300">
-                                    {{ $i + 1 }}
+                               class="group flex gap-4 py-4 hover:bg-[var(--ui-muted-5)] -mx-3 px-3 rounded-lg transition">
+                                <div class="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center text-sm font-semibold
+                                    @if($isDone) bg-emerald-500/15 text-emerald-600 dark:text-emerald-400
+                                    @else bg-[var(--ui-muted-5)] border border-[var(--ui-border)] text-gray-500 dark:text-gray-400 @endif"
+                                    style="font-family: var(--ui-font-mono);">
+                                    @if($isDone) @svg('heroicon-s-check', 'w-4 h-4') @else {{ $i + 1 }} @endif
                                 </div>
                                 <div class="flex-1 min-w-0">
-                                    <div class="font-medium text-gray-900 dark:text-gray-100 truncate">{{ $lesson->title }}</div>
+                                    <div class="font-semibold text-[15px] text-gray-900 dark:text-gray-100">{{ $lesson->title }}</div>
                                     @if($lesson->summary)
-                                        <div class="text-sm text-gray-500 dark:text-gray-400 truncate">{{ $lesson->summary }}</div>
+                                        <p class="text-[13px] text-gray-500 dark:text-gray-400 mt-0.5 leading-relaxed line-clamp-2">{{ $lesson->summary }}</p>
                                     @endif
                                 </div>
-                                <div class="flex-shrink-0 flex items-center gap-2">
-                                    @if($lesson->estimated_minutes)
-                                        <span class="text-xs text-gray-500 dark:text-gray-400">{{ $lesson->estimated_minutes }} min</span>
-                                    @endif
-                                    @if(isset($completedSet[$lesson->id]))
-                                        @svg('heroicon-s-check-circle', 'w-5 h-5 text-emerald-500')
-                                    @else
-                                        @svg('heroicon-o-chevron-right', 'w-5 h-5 text-gray-400')
-                                    @endif
-                                </div>
+                                @if($lesson->estimated_minutes)
+                                    <div class="flex-shrink-0 text-[11px] text-gray-400 whitespace-nowrap pt-1" style="font-family: var(--ui-font-mono);">{{ $lesson->estimated_minutes }} min</div>
+                                @endif
                             </a>
                         </li>
                     @endforeach

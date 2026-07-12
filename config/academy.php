@@ -29,9 +29,9 @@ return [
                     'icon'  => 'heroicon-o-rectangle-stack',
                 ],
                 [
-                    'label' => 'Themen',
+                    'label' => 'Bibliothek',
                     'route' => 'academy.topics.index',
-                    'icon'  => 'heroicon-o-squares-2x2',
+                    'icon'  => 'heroicon-o-book-open',
                 ],
             ],
         ],

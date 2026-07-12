@@ -13,8 +13,8 @@
             <span class="ml-2 text-sm">Kurse</span>
         </x-ui-sidebar-item>
         <x-ui-sidebar-item :href="route('academy.topics.index')" :active="request()->routeIs('academy.topics.*')">
-            @svg('heroicon-o-squares-2x2', 'w-4 h-4 text-[var(--ui-secondary)]')
-            <span class="ml-2 text-sm">Themen</span>
+            @svg('heroicon-o-book-open', 'w-4 h-4 text-[var(--ui-secondary)]')
+            <span class="ml-2 text-sm">Bibliothek</span>
         </x-ui-sidebar-item>
     </x-ui-sidebar-list>
 
@@ -45,7 +45,7 @@
                 @svg('heroicon-o-rectangle-stack', 'w-5 h-5')
             </a>
             <a href="{{ route('academy.topics.index') }}" wire:navigate class="flex items-center justify-center p-2 rounded-md text-[var(--ui-secondary)] hover:bg-[var(--ui-muted-5)] {{ request()->routeIs('academy.topics.*') ? 'bg-[var(--ui-primary-5)] text-[var(--ui-primary)]' : '' }}">
-                @svg('heroicon-o-squares-2x2', 'w-5 h-5')
+                @svg('heroicon-o-book-open', 'w-5 h-5')
             </a>
         </div>
     </div>

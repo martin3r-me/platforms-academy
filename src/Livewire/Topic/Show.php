@@ -33,6 +33,10 @@ class Show extends Component
         $completedIds = $progress->completedLessonIdsForUser($user->id, $lessons->pluck('id')->all());
         $completedSet = array_flip($completedIds);
 
+        $total = $lessons->count();
+        $done = count($completedSet);
+        $pct = $total > 0 ? (int) round($done / $total * 100) : 0;
+
         $this->dispatch('comms', [
             'model' => \Platform\Academy\Models\AcademyTopic::class,
             'modelId' => $topic->id,
@@ -48,6 +52,9 @@ class Show extends Component
             'topic' => $topic,
             'lessons' => $lessons,
             'completedSet' => $completedSet,
+            'total' => $total,
+            'done' => $done,
+            'pct' => $pct,
         ])->layout('platform::layouts.app');
     }
 }

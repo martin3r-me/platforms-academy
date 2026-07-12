@@ -223,7 +223,7 @@
     <x-slot name="actionbar">
         <x-ui-page-actionbar :breadcrumbs="[
             ['label' => 'Academy', 'href' => route('academy.dashboard'), 'icon' => 'academic-cap'],
-            ['label' => 'Themen', 'href' => route('academy.topics.index')],
+            ['label' => 'Bibliothek', 'href' => route('academy.topics.index')],
             ['label' => $lesson->topic->title, 'href' => route('academy.topics.show', ['uuid' => $lesson->topic->uuid])],
             ['label' => $lesson->title, 'href' => route('academy.lessons.show', ['uuid' => $lesson->uuid])],
         ]">
