@@ -23,7 +23,7 @@
                 @forelse($topics as $topic)
                     <a wire:navigate href="{{ route('academy.topics.show', ['uuid' => $topic->uuid]) }}"
                        class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-[var(--ui-muted-5)]">
-                        @svg($topic->icon ?: 'heroicon-o-folder', 'w-4 h-4 text-[var(--ui-secondary)] flex-shrink-0')
+                        <span class="flex-shrink-0" style="color: {{ $topic->hexColor() }};">@svg($topic->icon ?: 'heroicon-o-folder', 'w-4 h-4')</span>
                         <span class="flex-1 truncate">{{ $topic->title }}</span>
                         <span class="text-[10px] text-gray-400" style="font-family: var(--ui-font-mono);">{{ $topic->lesson_total }}</span>
                     </a>
@@ -77,33 +77,38 @@
             @else
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     @foreach($topics as $topic)
+                        @php($hex = $topic->hexColor())
                         <a wire:navigate href="{{ route('academy.topics.show', ['uuid' => $topic->uuid]) }}"
-                           class="group rounded-2xl border border-[var(--ui-border)] bg-[var(--ui-surface)] p-5 flex flex-col shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
+                           class="group relative overflow-hidden rounded-2xl border border-[var(--ui-border)] bg-[var(--ui-surface)] p-5 flex flex-col shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all">
+                            <span class="absolute inset-x-0 top-0 h-1" style="background: {{ $hex }};"></span>
                             <div class="flex items-start gap-3">
-                                <div class="flex-shrink-0 w-10 h-10 rounded-xl bg-[var(--ui-muted-5)] border border-[var(--ui-border)] flex items-center justify-center text-gray-500 dark:text-gray-400">
+                                <span class="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center"
+                                      style="background: color-mix(in srgb, {{ $hex }} 13%, transparent); color: {{ $hex }};">
                                     @svg($topic->icon ?: 'heroicon-o-folder', 'w-5 h-5')
-                                </div>
+                                </span>
                                 <div class="min-w-0 flex-1">
                                     <h3 class="font-semibold text-[15px] text-gray-900 dark:text-gray-100 leading-tight">{{ $topic->title }}</h3>
-                                    <div class="text-[11px] text-gray-400 mt-0.5" style="font-family: var(--ui-font-mono);">
+                                    <div class="text-[11px] font-semibold mt-0.5" style="font-family: var(--ui-font-mono); color: {{ $hex }};">
                                         {{ $topic->lesson_total }} {{ $topic->lesson_total === 1 ? 'Lektion' : 'Lektionen' }}
                                     </div>
                                 </div>
                             </div>
 
                             @if($topic->description)
-                                <p class="text-[13px] text-gray-500 dark:text-gray-400 mt-3 leading-relaxed line-clamp-3">{{ $topic->description }}</p>
+                                <p class="text-[13px] text-gray-500 dark:text-gray-400 mt-3 leading-relaxed line-clamp-2 flex-1">{{ $topic->description }}</p>
+                            @else
+                                <div class="flex-1"></div>
                             @endif
 
                             @if($topic->lesson_total > 0)
-                                <div class="mt-4 pt-1">
-                                    <div class="flex items-center gap-2">
-                                        <div class="flex-1 bg-[var(--ui-muted-10)] rounded-full h-1.5">
-                                            <div class="h-1.5 rounded-full bg-emerald-500" style="width: {{ $topic->progress_pct }}%"></div>
-                                        </div>
-                                        <span class="text-[11px] font-semibold {{ $topic->progress_pct > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400' }}" style="font-family: var(--ui-font-mono);">{{ $topic->lesson_done }}/{{ $topic->lesson_total }}</span>
+                                <div class="mt-4 flex items-center gap-2">
+                                    <div class="flex-1 bg-[var(--ui-muted-10)] rounded-full h-1.5">
+                                        <div class="h-1.5 rounded-full bg-emerald-500" style="width: {{ $topic->progress_pct }}%"></div>
                                     </div>
+                                    <span class="text-[11px] font-semibold {{ $topic->progress_pct > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-gray-400' }}" style="font-family: var(--ui-font-mono);">{{ $topic->lesson_done }}/{{ $topic->lesson_total }}</span>
                                 </div>
+                            @else
+                                <div class="mt-4 text-[11px] text-gray-400" style="font-family: var(--ui-font-mono);">In Vorbereitung</div>
                             @endif
                         </a>
                     @endforeach

@@ -68,11 +68,12 @@
 
             <div>
                 <div class="flex items-start gap-3">
-                    <div class="flex-shrink-0 w-11 h-11 rounded-xl bg-[var(--ui-muted-5)] border border-[var(--ui-border)] flex items-center justify-center text-gray-500 dark:text-gray-400">
+                    <div class="flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center"
+                         style="background: color-mix(in srgb, {{ $topic->hexColor() }} 13%, transparent); color: {{ $topic->hexColor() }};">
                         @svg($topic->icon ?: 'heroicon-o-folder', 'w-6 h-6')
                     </div>
                     <div class="min-w-0">
-                        <div class="text-[11px] font-medium uppercase tracking-[0.14em] text-gray-400" style="font-family: var(--ui-font-mono);">Bibliothek · Thema</div>
+                        <div class="text-[11px] font-medium uppercase tracking-[0.14em]" style="font-family: var(--ui-font-mono); color: {{ $topic->hexColor() }};">Bibliothek · Thema</div>
                         <h1 class="text-2xl font-bold tracking-tight text-gray-900 dark:text-gray-100" style="font-family: var(--ui-font-mono);">{{ $topic->title }}</h1>
                     </div>
                 </div>
