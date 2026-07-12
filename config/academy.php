@@ -24,12 +24,12 @@ return [
                     'icon'  => 'heroicon-o-home',
                 ],
                 [
-                    'label' => 'Kurse',
+                    'label' => 'Kurse (geführt)',
                     'route' => 'academy.paths.index',
                     'icon'  => 'heroicon-o-rectangle-stack',
                 ],
                 [
-                    'label' => 'Bibliothek',
+                    'label' => 'Bibliothek (frei)',
                     'route' => 'academy.topics.index',
                     'icon'  => 'heroicon-o-book-open',
                 ],

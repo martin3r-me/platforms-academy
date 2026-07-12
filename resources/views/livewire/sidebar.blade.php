@@ -11,10 +11,12 @@
         <x-ui-sidebar-item :href="route('academy.paths.index')" :active="request()->routeIs('academy.paths.index')">
             @svg('heroicon-o-rectangle-stack', 'w-4 h-4 text-[var(--ui-secondary)]')
             <span class="ml-2 text-sm">Kurse</span>
+            <span class="ml-1.5 text-[10px] text-[var(--ui-muted)]">geführt</span>
         </x-ui-sidebar-item>
         <x-ui-sidebar-item :href="route('academy.topics.index')" :active="request()->routeIs('academy.topics.*')">
             @svg('heroicon-o-book-open', 'w-4 h-4 text-[var(--ui-secondary)]')
             <span class="ml-2 text-sm">Bibliothek</span>
+            <span class="ml-1.5 text-[10px] text-[var(--ui-muted)]">frei</span>
         </x-ui-sidebar-item>
     </x-ui-sidebar-list>
 
