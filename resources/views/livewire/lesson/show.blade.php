@@ -1,4 +1,4 @@
-<div>
+<div class="h-full">
 {{-- Highlight.js: Syntax-Highlighting für Code-Blocks --}}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/styles/github-dark.min.css">
 <script defer src="https://cdn.jsdelivr.net/gh/highlightjs/cdn-release@11.10.0/build/highlight.min.js"></script>
