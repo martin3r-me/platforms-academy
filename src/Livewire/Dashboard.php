@@ -7,7 +7,9 @@ use Livewire\Component;
 use Platform\Academy\Models\AcademyLesson;
 use Platform\Academy\Models\AcademyLessonProgress;
 use Platform\Academy\Models\AcademyPath;
-use Platform\Academy\Models\AcademyTopic;
+use Platform\Academy\Models\AcademyPathEnrollment;
+use Platform\Academy\Services\AcademyCategoryService;
+use Platform\Academy\Services\AcademyEnrollmentService;
 
 class Dashboard extends Component
 {
@@ -17,7 +19,7 @@ class Dashboard extends Component
             'model' => null,
             'modelId' => null,
             'subject' => 'Academy Dashboard',
-            'description' => 'Übersicht aller Lernpfade und Themen',
+            'description' => 'Übersicht aller Kurse, Kategorien und Lernfortschritt',
             'url' => route('academy.dashboard'),
             'source' => 'academy.dashboard',
             'recipients' => [],
@@ -30,41 +32,49 @@ class Dashboard extends Component
         $user = Auth::user();
         $teamId = $user?->currentTeam?->id;
 
-        $paths = AcademyPath::query()
+        // "Meine Academy" — eingeschriebene Kurse mit Fortschritt + Resume
+        $enrollmentRows = app(AcademyEnrollmentService::class)->activeForUser($user->id, $teamId);
+        $activeCourses = $enrollmentRows->filter(fn ($r) => !$r['enrollment']->isCompleted())->take(6);
+
+        $enrolledPathIds = $enrollmentRows->map(fn ($r) => $r['path']->id)->all();
+
+        // Kategorien für den Katalog-Filter
+        $categories = app(AcademyCategoryService::class)->listForTeam($teamId);
+
+        // "Kurse entdecken" — veröffentlichte Kurse, in die man noch nicht eingeschrieben ist
+        $discover = AcademyPath::query()
             ->where('team_id', $teamId)
             ->where('status', AcademyPath::STATUS_PUBLISHED)
+            ->when($enrolledPathIds, fn ($q) => $q->whereNotIn('id', $enrolledPathIds))
+            ->with('category')
             ->withCount('lessons')
             ->orderBy('sort_order')
             ->orderBy('title')
-            ->get()
-            ->map(function (AcademyPath $path) use ($user) {
-                $path->setAttribute('progress_pct', $path->progressFor($user->id)['pct']);
-                return $path;
-            });
+            ->limit(6)
+            ->get();
 
-        $topicsCount = AcademyTopic::where('team_id', $teamId)->count();
+        // Kennzahlen
         $lessonsCount = AcademyLesson::where('team_id', $teamId)->where('status', AcademyLesson::STATUS_PUBLISHED)->count();
         $completedCount = AcademyLessonProgress::query()
             ->where('user_id', $user->id)
             ->where('status', AcademyLessonProgress::STATUS_COMPLETED)
             ->count();
-
-        $continueLessons = AcademyLesson::query()
-            ->where('team_id', $teamId)
-            ->whereHas('progress', fn ($q) => $q
-                ->where('user_id', $user->id)
-                ->where('status', AcademyLessonProgress::STATUS_IN_PROGRESS))
-            ->with('topic')
-            ->orderByDesc('updated_at')
-            ->limit(5)
-            ->get();
+        $completedThisWeek = AcademyLessonProgress::query()
+            ->where('user_id', $user->id)
+            ->where('status', AcademyLessonProgress::STATUS_COMPLETED)
+            ->where('completed_at', '>=', now()->startOfWeek())
+            ->count();
+        $enrolledCount = AcademyPathEnrollment::where('user_id', $user->id)->where('team_id', $teamId)->count();
 
         return view('academy::livewire.dashboard', [
-            'paths' => $paths,
-            'topicsCount' => $topicsCount,
+            'firstName' => str($user->name)->explode(' ')->first(),
+            'activeCourses' => $activeCourses,
+            'categories' => $categories,
+            'discover' => $discover,
             'lessonsCount' => $lessonsCount,
             'completedCount' => $completedCount,
-            'continueLessons' => $continueLessons,
+            'completedThisWeek' => $completedThisWeek,
+            'enrolledCount' => $enrolledCount,
         ])->layout('platform::layouts.app');
     }
 }

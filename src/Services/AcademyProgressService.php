@@ -28,6 +28,9 @@ class AcademyProgressService
         $progress->completed_at = now();
         $progress->save();
 
+        // Kurs-Einschreibung ggf. auf "abgeschlossen" heben.
+        app(AcademyEnrollmentService::class)->syncCompletion($userId, $lesson);
+
         return $progress;
     }
 
@@ -44,6 +47,9 @@ class AcademyProgressService
         $progress->status = AcademyLessonProgress::STATUS_IN_PROGRESS;
         $progress->completed_at = null;
         $progress->save();
+
+        // Falls ein Kurs dadurch nicht mehr 100% ist, Einschreibung reaktivieren.
+        app(AcademyEnrollmentService::class)->syncCompletion($userId, $lesson);
 
         return $progress;
     }

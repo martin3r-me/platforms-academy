@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Platform\Academy\Models\AcademyLesson;
 use Platform\Academy\Models\AcademyLessonProgress;
+use Platform\Academy\Services\AcademyEnrollmentService;
 use Platform\Academy\Services\AcademyMarkdownService;
 use Platform\Academy\Services\AcademyProgressService;
 
@@ -41,6 +42,9 @@ class Show extends Component
         if (!$existing) {
             app(AcademyProgressService::class)->start($user->id, $lesson);
         }
+
+        // Resume-Punkt fuer eingeschriebene Kurse mitziehen.
+        app(AcademyEnrollmentService::class)->touch($user->id, $lesson);
     }
 
     public function render()

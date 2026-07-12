@@ -2,25 +2,25 @@
 
 namespace Platform\Academy\Tools;
 
-use Platform\Academy\Services\AcademyPathService;
+use Platform\Academy\Services\AcademyCategoryService;
 use Platform\Academy\Tools\Concerns\ResolvesAcademyTeam;
 use Platform\Core\Contracts\ToolContract;
 use Platform\Core\Contracts\ToolContext;
 use Platform\Core\Contracts\ToolMetadataContract;
 use Platform\Core\Contracts\ToolResult;
 
-class CreateAcademyPathTool implements ToolContract, ToolMetadataContract
+class CreateAcademyCategoryTool implements ToolContract, ToolMetadataContract
 {
     use ResolvesAcademyTeam;
 
     public function getName(): string
     {
-        return 'academy.paths.POST';
+        return 'academy.categories.POST';
     }
 
     public function getDescription(): string
     {
-        return 'POST /academy/paths - Erstellt einen neuen Lernpfad (kuratierte Lesson-Reihenfolge). Lessons werden separat via attach hinzugefuegt.';
+        return 'POST /academy/categories - Legt eine Kurs-Kategorie an (z.B. "AI & Automation"). Farbe treibt Kurs-Cover + Chip, code_prefix die Kurs-Codes (z.B. "AI" -> AI-101).';
     }
 
     public function getSchema(): array
@@ -29,15 +29,11 @@ class CreateAcademyPathTool implements ToolContract, ToolMetadataContract
             'type' => 'object',
             'properties' => [
                 'team_id' => ['type' => 'integer'],
-                'title' => ['type' => 'string'],
-                'academy_category_id' => ['type' => 'integer', 'description' => 'Kategorie/"School" des Kurses (bestimmt Cover-Farbe).'],
-                'code' => ['type' => 'string', 'description' => 'Kurs-Code, z.B. "AI-101". Wird bei Kollision eindeutig gemacht.'],
-                'level' => ['type' => 'string', 'enum' => ['beginner', 'intermediate', 'advanced'], 'description' => 'Schwierigkeitsgrad.'],
+                'title' => ['type' => 'string', 'description' => 'Titel der Kategorie (ERFORDERLICH).'],
                 'description' => ['type' => 'string'],
-                'target_audience' => ['type' => 'string', 'description' => 'z.B. "Sales", "Dev", "Operations".'],
-                'status' => ['type' => 'string', 'enum' => ['draft', 'published', 'archived']],
-                'icon' => ['type' => 'string'],
-                'color' => ['type' => 'string', 'description' => 'Optionaler Cover-Farb-Override (Hex). Sonst erbt der Kurs die Kategorie-Farbe.'],
+                'color' => ['type' => 'string', 'description' => 'Hex-Basisfarbe, z.B. "#7C3AED".'],
+                'code_prefix' => ['type' => 'string', 'description' => 'Prefix fuer Kurs-Codes, z.B. "AI".'],
+                'icon' => ['type' => 'string', 'description' => 'Heroicon-Name, z.B. "heroicon-o-cpu-chip".'],
                 'slug' => ['type' => 'string'],
                 'sort_order' => ['type' => 'integer'],
             ],
@@ -56,22 +52,20 @@ class CreateAcademyPathTool implements ToolContract, ToolMetadataContract
                 return ToolResult::error('VALIDATION_ERROR', 'title ist erforderlich.');
             }
 
-            $path = app(AcademyPathService::class)->create(
+            $category = app(AcademyCategoryService::class)->create(
                 $resolved['team_id'],
                 $context->user->id,
                 array_merge($arguments, ['title' => $title]),
             );
 
             return ToolResult::success([
-                'id' => $path->id,
-                'uuid' => $path->uuid,
-                'slug' => $path->slug,
-                'title' => $path->title,
-                'code' => $path->code,
-                'level' => $path->level,
-                'academy_category_id' => $path->academy_category_id,
-                'status' => $path->status,
-                'message' => "Lernpfad '{$path->title}' erstellt (Status: {$path->status}).",
+                'id' => $category->id,
+                'uuid' => $category->uuid,
+                'slug' => $category->slug,
+                'title' => $category->title,
+                'color' => $category->color,
+                'code_prefix' => $category->code_prefix,
+                'message' => "Kategorie '{$category->title}' erstellt.",
             ]);
         } catch (\Throwable $e) {
             return ToolResult::error('EXECUTION_ERROR', 'Fehler: ' . $e->getMessage());
@@ -81,7 +75,7 @@ class CreateAcademyPathTool implements ToolContract, ToolMetadataContract
     public function getMetadata(): array
     {
         return [
-            'category' => 'action', 'tags' => ['academy', 'paths', 'create'],
+            'category' => 'action', 'tags' => ['academy', 'categories', 'create'],
             'read_only' => false, 'requires_auth' => true, 'requires_team' => true,
             'risk_level' => 'write', 'idempotent' => false,
         ];

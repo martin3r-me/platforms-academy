@@ -24,9 +24,9 @@ return [
                     'icon'  => 'heroicon-o-home',
                 ],
                 [
-                    'label' => 'Lernpfade',
+                    'label' => 'Kurse',
                     'route' => 'academy.paths.index',
-                    'icon'  => 'heroicon-o-map',
+                    'icon'  => 'heroicon-o-rectangle-stack',
                 ],
                 [
                     'label' => 'Themen',

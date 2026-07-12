@@ -5,6 +5,7 @@ namespace Platform\Academy\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Symfony\Component\Uid\UuidV7;
 
 class AcademyPath extends Model
@@ -15,12 +16,28 @@ class AcademyPath extends Model
     public const STATUS_PUBLISHED = 'published';
     public const STATUS_ARCHIVED = 'archived';
 
+    public const LEVEL_BEGINNER = 'beginner';
+    public const LEVEL_INTERMEDIATE = 'intermediate';
+    public const LEVEL_ADVANCED = 'advanced';
+
+    public const LEVELS = [
+        self::LEVEL_BEGINNER => 'Einsteiger',
+        self::LEVEL_INTERMEDIATE => 'Fortgeschritten',
+        self::LEVEL_ADVANCED => 'Profi',
+    ];
+
+    /** Fallback-Cover-Farbe (Platform-Primary), falls weder Kategorie noch Override gesetzt sind. */
+    public const DEFAULT_COLOR = '#4F46E5';
+
     protected $fillable = [
         'uuid',
         'team_id',
+        'academy_category_id',
         'created_by_user_id',
         'slug',
         'title',
+        'code',
+        'level',
         'description',
         'icon',
         'color',
@@ -43,9 +60,44 @@ class AcademyPath extends Model
         return $this->belongsTo(\App\Models\Team::class, 'team_id');
     }
 
+    public function category(): BelongsTo
+    {
+        return $this->belongsTo(AcademyCategory::class, 'academy_category_id');
+    }
+
     public function createdBy(): BelongsTo
     {
         return $this->belongsTo(\App\Models\User::class, 'created_by_user_id');
+    }
+
+    public function enrollments(): HasMany
+    {
+        return $this->hasMany(AcademyPathEnrollment::class, 'academy_path_id');
+    }
+
+    public function enrollmentFor(int $userId): ?AcademyPathEnrollment
+    {
+        return $this->enrollments()->where('user_id', $userId)->first();
+    }
+
+    /**
+     * Cover-Farbe: Path-Override > Kategorie-Farbe > Default.
+     * Treibt den typografischen Kurs-Cover-Verlauf und das Kategorie-Label.
+     */
+    public function coverColor(): string
+    {
+        if ($this->color && str_starts_with($this->color, '#')) {
+            return $this->color;
+        }
+
+        return $this->relationLoaded('category')
+            ? ($this->category?->color ?: self::DEFAULT_COLOR)
+            : ($this->category()->first()?->color ?: self::DEFAULT_COLOR);
+    }
+
+    public function levelLabel(): ?string
+    {
+        return $this->level ? (self::LEVELS[$this->level] ?? null) : null;
     }
 
     public function lessons(): BelongsToMany

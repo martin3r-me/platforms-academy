@@ -62,6 +62,18 @@ class AcademyServiceProvider extends ServiceProvider
             // Overview
             $registry->register(new \Platform\Academy\Tools\AcademyOverviewTool());
 
+            // Categories ("Schools")
+            $registry->register(new \Platform\Academy\Tools\ListAcademyCategoriesTool());
+            $registry->register(new \Platform\Academy\Tools\CreateAcademyCategoryTool());
+            $registry->register(new \Platform\Academy\Tools\UpdateAcademyCategoryTool());
+            $registry->register(new \Platform\Academy\Tools\DeleteAcademyCategoryTool());
+            $registry->register(new \Platform\Academy\Tools\SeedAcademyCategoriesTool());
+
+            // Enrollments ("Meine Academy")
+            $registry->register(new \Platform\Academy\Tools\ListMyEnrollmentsTool());
+            $registry->register(new \Platform\Academy\Tools\EnrollInPathTool());
+            $registry->register(new \Platform\Academy\Tools\DropEnrollmentTool());
+
             // Topics
             $registry->register(new \Platform\Academy\Tools\ListAcademyTopicsTool());
             $registry->register(new \Platform\Academy\Tools\GetAcademyTopicTool());

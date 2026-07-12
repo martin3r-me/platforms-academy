@@ -9,8 +9,8 @@
             <span class="ml-2 text-sm">Dashboard</span>
         </x-ui-sidebar-item>
         <x-ui-sidebar-item :href="route('academy.paths.index')" :active="request()->routeIs('academy.paths.index')">
-            @svg('heroicon-o-map', 'w-4 h-4 text-[var(--ui-secondary)]')
-            <span class="ml-2 text-sm">Lernpfade</span>
+            @svg('heroicon-o-rectangle-stack', 'w-4 h-4 text-[var(--ui-secondary)]')
+            <span class="ml-2 text-sm">Kurse</span>
         </x-ui-sidebar-item>
         <x-ui-sidebar-item :href="route('academy.topics.index')" :active="request()->routeIs('academy.topics.*')">
             @svg('heroicon-o-squares-2x2', 'w-4 h-4 text-[var(--ui-secondary)]')
@@ -19,7 +19,7 @@
     </x-ui-sidebar-list>
 
     @if($paths->isNotEmpty())
-        <x-ui-sidebar-list label="Aktive Lernpfade">
+        <x-ui-sidebar-list label="Meine Kurse">
             @foreach($paths as $path)
                 <x-ui-sidebar-item :href="route('academy.paths.show', ['uuid' => $path->uuid])" :active="request()->is('*/academy/paths/' . $path->uuid)">
                     @svg($path->icon ?: 'heroicon-o-map-pin', 'w-4 h-4 text-[var(--ui-secondary)]')
@@ -42,7 +42,7 @@
                 @svg('heroicon-o-home', 'w-5 h-5')
             </a>
             <a href="{{ route('academy.paths.index') }}" wire:navigate class="flex items-center justify-center p-2 rounded-md text-[var(--ui-secondary)] hover:bg-[var(--ui-muted-5)] {{ request()->routeIs('academy.paths.*') ? 'bg-[var(--ui-primary-5)] text-[var(--ui-primary)]' : '' }}">
-                @svg('heroicon-o-map', 'w-5 h-5')
+                @svg('heroicon-o-rectangle-stack', 'w-5 h-5')
             </a>
             <a href="{{ route('academy.topics.index') }}" wire:navigate class="flex items-center justify-center p-2 rounded-md text-[var(--ui-secondary)] hover:bg-[var(--ui-muted-5)] {{ request()->routeIs('academy.topics.*') ? 'bg-[var(--ui-primary-5)] text-[var(--ui-primary)]' : '' }}">
                 @svg('heroicon-o-squares-2x2', 'w-5 h-5')
