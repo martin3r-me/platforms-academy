@@ -4,7 +4,7 @@ namespace Platform\Academy\Livewire;
 
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
-use Platform\Academy\Models\AcademyPath;
+use Platform\Academy\Services\AcademyEnrollmentService;
 
 class Sidebar extends Component
 {
@@ -13,31 +13,23 @@ class Sidebar extends Component
         $user = Auth::user();
 
         if (!$user) {
-            return view('academy::livewire.sidebar', [
-                'paths' => collect(),
-            ]);
+            return view('academy::livewire.sidebar', ['courses' => collect()]);
         }
 
-        $teamId = $user->currentTeam->id;
-        $userId = $user->id;
-
-        $paths = AcademyPath::query()
-            ->where('team_id', $teamId)
-            ->where('status', AcademyPath::STATUS_PUBLISHED)
-            ->orderBy('sort_order')
-            ->orderBy('title')
-            ->limit(10)
-            ->get()
-            ->map(function (AcademyPath $path) use ($userId) {
-                $summary = $path->progressFor($userId);
-                $path->setAttribute('progress_pct', $summary['pct']);
-                $path->setAttribute('progress_completed', $summary['completed']);
-                $path->setAttribute('progress_total', $summary['total']);
-                return $path;
-            });
+        // Nur abonnierte Kurse — sortiert nach letzter Aktivität.
+        $courses = app(AcademyEnrollmentService::class)
+            ->activeForUser($user->id, $user->currentTeam->id)
+            ->map(fn ($row) => [
+                'uuid' => $row['path']->uuid,
+                'title' => $row['path']->title,
+                'icon' => $row['path']->icon,
+                'pct' => $row['progress']['pct'],
+                'completed' => $row['enrollment']->isCompleted(),
+            ])
+            ->take(8);
 
         return view('academy::livewire.sidebar', [
-            'paths' => $paths,
+            'courses' => $courses,
         ]);
     }
 }

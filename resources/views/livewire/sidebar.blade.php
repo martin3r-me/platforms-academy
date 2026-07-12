@@ -18,17 +18,17 @@
         </x-ui-sidebar-item>
     </x-ui-sidebar-list>
 
-    @if($paths->isNotEmpty())
+    @if($courses->isNotEmpty())
         <x-ui-sidebar-list label="Meine Kurse">
-            @foreach($paths as $path)
-                <x-ui-sidebar-item :href="route('academy.paths.show', ['uuid' => $path->uuid])" :active="request()->is('*/academy/paths/' . $path->uuid)">
-                    @svg($path->icon ?: 'heroicon-o-map-pin', 'w-4 h-4 text-[var(--ui-secondary)]')
-                    <span class="ml-2 text-sm truncate">{{ $path->title }}</span>
+            @foreach($courses as $course)
+                <x-ui-sidebar-item :href="route('academy.paths.show', ['uuid' => $course['uuid']])" :active="request()->is('*/academy/paths/' . $course['uuid'])">
+                    @svg($course['icon'] ?: 'heroicon-o-rectangle-stack', 'w-4 h-4 text-[var(--ui-secondary)]')
+                    <span class="ml-2 text-sm truncate">{{ $course['title'] }}</span>
                     <x-slot name="trailing">
-                        @if($path->progress_pct >= 100)
+                        @if($course['completed'])
                             @svg('heroicon-s-check-circle', 'w-4 h-4 text-emerald-500')
                         @else
-                            <span class="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">{{ $path->progress_pct }}%</span>
+                            <span class="text-[10px] font-semibold text-emerald-600 dark:text-emerald-400">{{ $course['pct'] }}%</span>
                         @endif
                     </x-slot>
                 </x-ui-sidebar-item>
