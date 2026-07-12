@@ -1,7 +1,7 @@
 <div>
 <x-ui-page>
     <x-slot name="navbar">
-        <x-ui-page-navbar title="" />
+        <x-ui-page-navbar title="Bibliothek" icon="heroicon-o-book-open" />
     </x-slot>
 
     <x-slot name="actionbar">
@@ -15,6 +15,23 @@
                 <span class="hidden sm:inline">Aktivität</span>
             </button>
         </x-ui-page-actionbar>
+    </x-slot>
+
+    <x-slot name="sidebar">
+        <x-ui-page-sidebar title="Themen" icon="heroicon-o-folder" width="w-64" :defaultOpen="true">
+            <nav class="p-3 space-y-1">
+                @forelse($topics as $topic)
+                    <a wire:navigate href="{{ route('academy.topics.show', ['uuid' => $topic->uuid]) }}"
+                       class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-[var(--ui-muted-5)]">
+                        @svg($topic->icon ?: 'heroicon-o-folder', 'w-4 h-4 text-[var(--ui-secondary)] flex-shrink-0')
+                        <span class="flex-1 truncate">{{ $topic->title }}</span>
+                        <span class="text-[10px] text-gray-400" style="font-family: var(--ui-font-mono);">{{ $topic->lesson_total }}</span>
+                    </a>
+                @empty
+                    <div class="px-3 py-2 text-xs text-gray-400">Noch keine Themen.</div>
+                @endforelse
+            </nav>
+        </x-ui-page-sidebar>
     </x-slot>
 
     <x-slot name="activity">

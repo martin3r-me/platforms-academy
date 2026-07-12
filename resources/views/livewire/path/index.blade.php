@@ -1,7 +1,7 @@
 <div>
 <x-ui-page>
     <x-slot name="navbar">
-        <x-ui-page-navbar title="" />
+        <x-ui-page-navbar title="Kurse" icon="heroicon-o-rectangle-stack" />
     </x-slot>
 
     <x-slot name="actionbar">
@@ -15,6 +15,26 @@
                 <span class="hidden sm:inline">Aktivität</span>
             </button>
         </x-ui-page-actionbar>
+    </x-slot>
+
+    <x-slot name="sidebar">
+        <x-ui-page-sidebar title="Kategorien" icon="heroicon-o-squares-2x2" width="w-64" :defaultOpen="true">
+            <nav class="p-3 space-y-1">
+                <a wire:navigate href="{{ route('academy.paths.index') }}"
+                   class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm {{ !$activeCategory ? 'bg-[var(--ui-primary-5)] text-[var(--ui-primary)] font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-[var(--ui-muted-5)]' }}">
+                    @svg('heroicon-o-rectangle-stack', 'w-4 h-4')
+                    <span class="flex-1 truncate">Alle Kurse</span>
+                </a>
+                @foreach($categories as $cat)
+                    <a wire:navigate href="{{ route('academy.paths.index', ['category' => $cat->slug]) }}"
+                       class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm {{ $activeCategory && $activeCategory->id === $cat->id ? 'bg-[var(--ui-primary-5)] text-[var(--ui-primary)] font-medium' : 'text-gray-700 dark:text-gray-300 hover:bg-[var(--ui-muted-5)]' }}">
+                        <span class="w-2 h-2 rounded-full flex-shrink-0" style="background: {{ $cat->color() }};"></span>
+                        <span class="flex-1 truncate">{{ $cat->title }}</span>
+                        <span class="text-[10px] text-gray-400" style="font-family: var(--ui-font-mono);">{{ $cat->paths_count }}</span>
+                    </a>
+                @endforeach
+            </nav>
+        </x-ui-page-sidebar>
     </x-slot>
 
     <x-slot name="activity">
@@ -44,21 +64,11 @@
                 <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Kuratierte Kurse aus mehreren Lektionen — schreib dich ein und tracke deinen Fortschritt</p>
             </div>
 
-            {{-- Kategorie-Filter --}}
-            @if($categories->isNotEmpty())
-                <div class="flex flex-wrap gap-2">
-                    <a wire:navigate href="{{ route('academy.paths.index') }}"
-                       class="inline-flex items-center gap-2 px-3.5 py-2 rounded-full border text-xs transition {{ !$activeCategory ? 'bg-gray-900 text-white border-gray-900 dark:bg-gray-100 dark:text-gray-900 dark:border-gray-100' : 'border-[var(--ui-border)] bg-[var(--ui-surface)] text-gray-600 dark:text-gray-300 hover:border-gray-400' }}"
-                       style="font-family: var(--ui-font-mono);">Alle</a>
-                    @foreach($categories as $cat)
-                        <a wire:navigate href="{{ route('academy.paths.index', ['category' => $cat->slug]) }}"
-                           class="inline-flex items-center gap-2 px-3.5 py-2 rounded-full border text-xs transition {{ $activeCategory && $activeCategory->id === $cat->id ? 'bg-gray-900 text-white border-gray-900 dark:bg-gray-100 dark:text-gray-900 dark:border-gray-100' : 'border-[var(--ui-border)] bg-[var(--ui-surface)] text-gray-600 dark:text-gray-300 hover:border-gray-400' }}"
-                           style="font-family: var(--ui-font-mono);">
-                            <span class="w-2 h-2 rounded-full" style="background: {{ $cat->color() }};"></span>
-                            {{ $cat->title }}
-                            <span class="opacity-50">{{ $cat->paths_count }}</span>
-                        </a>
-                    @endforeach
+            @if($activeCategory)
+                <div class="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                    <span class="w-2.5 h-2.5 rounded-full" style="background: {{ $activeCategory->color() }};"></span>
+                    Gefiltert nach <span class="font-medium text-gray-900 dark:text-gray-100">{{ $activeCategory->title }}</span>
+                    <a wire:navigate href="{{ route('academy.paths.index') }}" class="text-[var(--ui-primary)] hover:underline">· zurücksetzen</a>
                 </div>
             @endif
 

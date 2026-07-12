@@ -217,7 +217,7 @@
 
 <x-ui-page>
     <x-slot name="navbar">
-        <x-ui-page-navbar title="" />
+        <x-ui-page-navbar :title="$lesson->title" icon="heroicon-o-document-text" />
     </x-slot>
 
     <x-slot name="actionbar">

@@ -1,7 +1,7 @@
 <div>
 <x-ui-page>
     <x-slot name="navbar">
-        <x-ui-page-navbar title="" />
+        <x-ui-page-navbar :title="$topic->title" icon="heroicon-o-book-open" />
     </x-slot>
 
     <x-slot name="actionbar">
@@ -16,6 +16,25 @@
                 <span class="hidden sm:inline">Info</span>
             </button>
         </x-ui-page-actionbar>
+    </x-slot>
+
+    <x-slot name="sidebar">
+        <x-ui-page-sidebar title="Lektionen" icon="heroicon-o-list-bullet" width="w-72" :defaultOpen="true">
+            <nav class="p-3 space-y-1">
+                @forelse($lessons as $i => $lesson)
+                    @php($isDone = isset($completedSet[$lesson->id]))
+                    <a wire:navigate href="{{ route('academy.lessons.show', ['uuid' => $lesson->uuid]) }}"
+                       class="flex items-center gap-2 px-3 py-2 rounded-lg text-sm text-gray-700 dark:text-gray-300 hover:bg-[var(--ui-muted-5)]">
+                        <span class="flex-shrink-0 w-5 h-5 rounded-full text-[10px] flex items-center justify-center {{ $isDone ? 'bg-emerald-500 text-white' : 'bg-[var(--ui-muted-10)] text-gray-500' }}" style="font-family: var(--ui-font-mono);">
+                            @if($isDone) @svg('heroicon-s-check', 'w-3 h-3') @else {{ $i + 1 }} @endif
+                        </span>
+                        <span class="flex-1 truncate">{{ $lesson->title }}</span>
+                    </a>
+                @empty
+                    <div class="px-3 py-2 text-xs text-gray-400">Noch keine Lektionen.</div>
+                @endforelse
+            </nav>
+        </x-ui-page-sidebar>
     </x-slot>
 
     <x-slot name="activity">
