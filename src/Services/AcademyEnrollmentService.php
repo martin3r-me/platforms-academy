@@ -87,7 +87,7 @@ class AcademyEnrollmentService
             return null;
         }
 
-        $lessons = $path->lessons()->get();
+        $lessons = $path->publishedLessons()->get();
         if ($lessons->isEmpty()) {
             return null;
         }

@@ -42,7 +42,7 @@ class Index extends Component
             ->where('status', AcademyPath::STATUS_PUBLISHED)
             ->when($activeCategory, fn ($q) => $q->where('academy_category_id', $activeCategory->id))
             ->with('category')
-            ->withCount('lessons')
+            ->withCount(['publishedLessons as lessons_count'])
             ->orderBy('sort_order')
             ->orderBy('title')
             ->get()

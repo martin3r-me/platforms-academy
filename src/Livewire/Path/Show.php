@@ -36,7 +36,7 @@ class Show extends Component
         $user = Auth::user();
         $path = $this->resolvePath($user);
 
-        $lessons = $path->lessons()->with('topic')->get();
+        $lessons = $path->publishedLessons()->with('topic')->get();
         $summary = app(AcademyProgressService::class)->summaryForPath($user->id, $path);
 
         $completedIds = app(AcademyProgressService::class)

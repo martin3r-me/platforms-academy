@@ -52,6 +52,9 @@ class Index extends Component
             $topic->setAttribute('progress_pct', $total > 0 ? (int) round($done / $total * 100) : 0);
         }
 
+        // Leere Autoren-Themen (0 veröffentlichte Lektionen) für Lernende ausblenden.
+        $topics = $topics->filter(fn ($topic) => $topic->lesson_total > 0)->values();
+
         return view('academy::livewire.topic.index', [
             'topics' => $topics,
             'lessonsTotal' => $lessonRows->count(),

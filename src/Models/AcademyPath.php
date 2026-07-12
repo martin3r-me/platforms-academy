@@ -113,9 +113,19 @@ class AcademyPath extends Model
             ->orderBy('academy_path_lessons.sort_order');
     }
 
+    /**
+     * Nur veröffentlichte Lektionen — die für Lernende sichtbare, zählende Menge.
+     * Entwürfe eines Kurses (noch nicht geschrieben) bleiben außen vor, damit
+     * Fortschritt & Zertifikat gegen die fertigen Inhalte rechnen.
+     */
+    public function publishedLessons(): BelongsToMany
+    {
+        return $this->lessons()->where('academy_lessons.status', AcademyLesson::STATUS_PUBLISHED);
+    }
+
     public function progressFor(int $userId): array
     {
-        $lessons = $this->lessons()->get(['academy_lessons.id']);
+        $lessons = $this->publishedLessons()->get(['academy_lessons.id']);
         $total = $lessons->count();
 
         if ($total === 0) {

@@ -47,7 +47,7 @@ class Dashboard extends Component
             ->where('status', AcademyPath::STATUS_PUBLISHED)
             ->when($enrolledPathIds, fn ($q) => $q->whereNotIn('id', $enrolledPathIds))
             ->with('category')
-            ->withCount('lessons')
+            ->withCount(['publishedLessons as lessons_count'])
             ->orderBy('sort_order')
             ->orderBy('title')
             ->limit(6)
