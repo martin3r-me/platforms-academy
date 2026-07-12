@@ -67,7 +67,15 @@ class Show extends Component
             ->completedLessonIdsForUser($user->id, $topicLessons->pluck('id')->all());
         $completedSet = array_flip($completedIdsInTopic);
 
-        $pathMemberships = $lesson->paths()->where('status', \Platform\Academy\Models\AcademyPath::STATUS_PUBLISHED)->get();
+        $pathMemberships = $lesson->paths()
+            ->where('status', \Platform\Academy\Models\AcademyPath::STATUS_PUBLISHED)
+            ->with('category')
+            ->get();
+
+        // Akzentfarbe des Hero: erbt die Farbe des Kurses (sonst Thema-Farbe, sonst Indigo).
+        $accentColor = $pathMemberships->isNotEmpty()
+            ? $pathMemberships->first()->coverColor()
+            : (($lesson->topic->color && str_starts_with($lesson->topic->color, '#')) ? $lesson->topic->color : '#4F46E5');
 
         $this->dispatch('comms', [
             'model' => AcademyLesson::class,
@@ -89,6 +97,7 @@ class Show extends Component
             'topicLessons' => $topicLessons,
             'completedSet' => $completedSet,
             'pathMemberships' => $pathMemberships,
+            'accentColor' => $accentColor,
         ])->layout('platform::layouts.app');
     }
 

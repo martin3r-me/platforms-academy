@@ -32,12 +32,12 @@
     .academy-alert-body > *:first-child { margin-top: 0; }
     .academy-alert-body > *:last-child { margin-bottom: 0; }
 
-    .academy-alert-info     { border-left-color: #3b82f6; }
-    .academy-alert-tip      { border-left-color: #10b981; }
-    .academy-alert-warning  { border-left-color: #f59e0b; }
-    .academy-alert-note     { border-left-color: #6b7280; }
-    .academy-alert-important{ border-left-color: #d946ef; }
-    .academy-alert-caution  { border-left-color: #ef4444; }
+    .academy-alert-info     { border-left-color: #3b82f6; background: rgba(59,130,246,.06); }
+    .academy-alert-tip      { border-left-color: #10b981; background: rgba(16,185,129,.07); }
+    .academy-alert-warning  { border-left-color: #f59e0b; background: rgba(245,158,11,.07); }
+    .academy-alert-note     { border-left-color: #6b7280; background: var(--ui-muted-5); }
+    .academy-alert-important{ border-left-color: #d946ef; background: rgba(217,70,239,.06); }
+    .academy-alert-caution  { border-left-color: #ef4444; background: rgba(239,68,68,.06); }
 
     .academy-alert-info     .academy-alert-label { color: #1d4ed8; }
     .academy-alert-tip      .academy-alert-label { color: #047857; }
@@ -93,6 +93,14 @@
         font-size: 1rem;
         font-weight: 600;
         color: var(--ui-primary);
+    }
+    /* Mono-Überschriften — Marken-Signatur (wie im Design-Deck) */
+    .academy-lesson-content h1,
+    .academy-lesson-content h2,
+    .academy-lesson-content h3,
+    .academy-lesson-content h4 {
+        font-family: var(--ui-font-mono);
+        letter-spacing: -0.01em;
     }
     .academy-lesson-content p {
         margin: 0.75em 0;
@@ -329,10 +337,10 @@
 
         {{-- ===== HERO ===== --}}
         <div class="relative overflow-hidden rounded-3xl border border-[var(--ui-border)]"
-             style="background-image: linear-gradient(135deg, var(--ui-primary-10), transparent 62%);">
+             style="background-image: linear-gradient(135deg, color-mix(in srgb, {{ $accentColor }} 14%, transparent), transparent 62%);">
             <div class="p-8 md:p-10 max-w-3xl">
                 <div class="flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.14em]" style="font-family: var(--ui-font-mono);">
-                    <a wire:navigate href="{{ route('academy.topics.show', ['uuid' => $lesson->topic->uuid]) }}" class="text-[var(--ui-primary)] hover:underline">{{ $lesson->topic->title }}</a>
+                    <a wire:navigate href="{{ route('academy.topics.show', ['uuid' => $lesson->topic->uuid]) }}" class="hover:underline" style="color: {{ $accentColor }};">{{ $lesson->topic->title }}</a>
                     @if($num)
                         <span class="text-gray-300">·</span>
                         <span class="text-gray-400">Lektion {{ $num }} / {{ $count }}</span>
