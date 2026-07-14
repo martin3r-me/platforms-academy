@@ -159,6 +159,9 @@ class AcademyEnrollmentService
             $enrollment->status = AcademyPathEnrollment::STATUS_COMPLETED;
             $enrollment->completed_at = now();
             $enrollment->save();
+
+            // Kurs vollstaendig -> Zertifikat ausstellen (idempotent).
+            app(AcademyCertificateService::class)->issueIfComplete($enrollment->user_id, $path);
         } elseif (!$isComplete && $enrollment->isCompleted()) {
             // Kurs wurde erweitert oder Lesson wieder geoeffnet -> zurueck auf aktiv.
             $enrollment->status = AcademyPathEnrollment::STATUS_ACTIVE;

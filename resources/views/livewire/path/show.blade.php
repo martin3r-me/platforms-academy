@@ -117,8 +117,16 @@
                     <div class="pt-1">
                         @if($enrollment)
                             @if($enrollment->isCompleted())
-                                <div class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/95 text-sm font-semibold" style="color: {{ $coverColor }};">
-                                    @svg('heroicon-s-check-badge', 'w-5 h-5') Kurs abgeschlossen
+                                <div class="flex flex-col sm:flex-row sm:items-center gap-3">
+                                    <div class="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/95 text-sm font-semibold" style="color: {{ $coverColor }};">
+                                        @svg('heroicon-s-check-badge', 'w-5 h-5') Kurs abgeschlossen
+                                    </div>
+                                    @if($certificate)
+                                        <a wire:navigate href="{{ route('academy.certificates.show', ['uuid' => $certificate->uuid]) }}"
+                                           class="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-white/15 backdrop-blur border border-white/30 text-sm font-bold text-white hover:bg-white/25 transition">
+                                            @svg('heroicon-o-document-check', 'w-5 h-5') Zertifikat ansehen
+                                        </a>
+                                    @endif
                                 </div>
                             @else
                                 <div class="flex flex-col sm:flex-row sm:items-center gap-4">

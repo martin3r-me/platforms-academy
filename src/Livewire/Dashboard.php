@@ -9,6 +9,7 @@ use Platform\Academy\Models\AcademyLessonProgress;
 use Platform\Academy\Models\AcademyPath;
 use Platform\Academy\Models\AcademyPathEnrollment;
 use Platform\Academy\Services\AcademyCategoryService;
+use Platform\Academy\Services\AcademyCertificateService;
 use Platform\Academy\Services\AcademyEnrollmentService;
 
 class Dashboard extends Component
@@ -35,6 +36,16 @@ class Dashboard extends Component
         // "Meine Academy" — eingeschriebene Kurse mit Fortschritt + Resume
         $enrollmentRows = app(AcademyEnrollmentService::class)->activeForUser($user->id, $teamId);
         $activeCourses = $enrollmentRows->filter(fn ($r) => !$r['enrollment']->isCompleted())->take(6);
+
+        // Abgeschlossene Kurse + zugehoerige Zertifikate.
+        $certService = app(AcademyCertificateService::class);
+        $completedCourses = $enrollmentRows
+            ->filter(fn ($r) => $r['enrollment']->isCompleted())
+            ->map(function ($r) use ($certService, $user) {
+                $r['certificate'] = $certService->forUserPath($user->id, $r['path']);
+                return $r;
+            })
+            ->values();
 
         $enrolledPathIds = $enrollmentRows->map(fn ($r) => $r['path']->id)->all();
 
@@ -69,6 +80,7 @@ class Dashboard extends Component
         return view('academy::livewire.dashboard', [
             'firstName' => str($user->name)->explode(' ')->first(),
             'activeCourses' => $activeCourses,
+            'completedCourses' => $completedCourses,
             'categories' => $categories,
             'discover' => $discover,
             'lessonsCount' => $lessonsCount,

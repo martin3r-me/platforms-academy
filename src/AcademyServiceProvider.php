@@ -88,6 +88,11 @@ class AcademyServiceProvider extends ServiceProvider
             $registry->register(new \Platform\Academy\Tools\UpdateAcademyLessonTool());
             $registry->register(new \Platform\Academy\Tools\DeleteAcademyLessonTool());
 
+            // Quizzes ("Concept-Checks") — gaten den Lektions-Abschluss
+            $registry->register(new \Platform\Academy\Tools\GetAcademyQuizTool());
+            $registry->register(new \Platform\Academy\Tools\UpsertAcademyQuizTool());
+            $registry->register(new \Platform\Academy\Tools\DeleteAcademyQuizTool());
+
             // Paths + pivot
             $registry->register(new \Platform\Academy\Tools\ListAcademyPathsTool());
             $registry->register(new \Platform\Academy\Tools\GetAcademyPathTool());

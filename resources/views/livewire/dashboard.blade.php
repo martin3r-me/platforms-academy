@@ -158,6 +158,41 @@
                 </div>
             @endif
 
+            {{-- MEINE ZERTIFIKATE --}}
+            @if($completedCourses->isNotEmpty())
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        @svg('heroicon-o-document-check', 'w-5 h-5 text-emerald-500')
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Meine Zertifikate</h2>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        @foreach($completedCourses as $row)
+                            @php($p = $row['path'])
+                            <div class="rounded-2xl border border-emerald-500/25 bg-emerald-500/[0.04] p-5 flex flex-col gap-3">
+                                <div class="flex items-start justify-between gap-3">
+                                    <div class="min-w-0">
+                                        @if($p->code)
+                                            <span class="text-[10px] font-bold tracking-wider px-2 py-0.5 rounded-full text-white" style="font-family: var(--ui-font-mono); background: {{ $p->coverColor() }};">{{ $p->code }}</span>
+                                        @endif
+                                        <div class="mt-2 font-semibold text-[15px] text-gray-900 dark:text-gray-100 leading-tight">{{ $p->title }}</div>
+                                    </div>
+                                    @svg('heroicon-s-check-badge', 'w-7 h-7 text-emerald-500 flex-shrink-0')
+                                </div>
+                                @if($row['certificate'])
+                                    <div class="text-[11px] text-gray-500 dark:text-gray-400" style="font-family: var(--ui-font-mono);">{{ $row['certificate']->serial }}</div>
+                                    <a wire:navigate href="{{ route('academy.certificates.show', ['uuid' => $row['certificate']->uuid]) }}"
+                                       class="mt-auto flex items-center justify-center gap-2 w-full px-4 py-2 rounded-lg bg-[var(--ui-primary)] text-white text-[13px] font-semibold hover:opacity-90 transition">
+                                        @svg('heroicon-o-document-check', 'w-4 h-4') Zertifikat ansehen
+                                    </a>
+                                @else
+                                    <div class="mt-auto text-[12px] text-emerald-600 dark:text-emerald-400 font-medium">Abgeschlossen</div>
+                                @endif
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
             {{-- KATALOG --}}
             <div>
                 <div class="flex items-center justify-between mb-4">

@@ -5,6 +5,7 @@ namespace Platform\Academy\Livewire\Path;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Platform\Academy\Models\AcademyPath;
+use Platform\Academy\Services\AcademyCertificateService;
 use Platform\Academy\Services\AcademyEnrollmentService;
 use Platform\Academy\Services\AcademyProgressService;
 
@@ -48,6 +49,8 @@ class Show extends Component
             ? app(AcademyEnrollmentService::class)->resumeLesson($enrollment)
             : null;
 
+        $certificate = app(AcademyCertificateService::class)->forUserPath($user->id, $path);
+
         $this->dispatch('comms', [
             'model' => \Platform\Academy\Models\AcademyPath::class,
             'modelId' => $path->id,
@@ -66,6 +69,7 @@ class Show extends Component
             'completedSet' => $completedSet,
             'enrollment' => $enrollment,
             'resumeLesson' => $resumeLesson,
+            'certificate' => $certificate,
         ])->layout('platform::layouts.app');
     }
 

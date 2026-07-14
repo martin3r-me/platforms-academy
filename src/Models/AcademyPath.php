@@ -80,6 +80,16 @@ class AcademyPath extends Model
         return $this->enrollments()->where('user_id', $userId)->first();
     }
 
+    public function certificates(): HasMany
+    {
+        return $this->hasMany(AcademyCertificate::class, 'academy_path_id');
+    }
+
+    public function certificateFor(int $userId): ?AcademyCertificate
+    {
+        return $this->certificates()->where('user_id', $userId)->first();
+    }
+
     /**
      * Cover-Farbe: Path-Override > Kategorie-Farbe > Default.
      * Treibt den typografischen Kurs-Cover-Verlauf und das Kategorie-Label.
