@@ -4,6 +4,7 @@ namespace Platform\Academy\Tools;
 
 use Platform\Academy\Models\AcademyLesson;
 use Platform\Academy\Services\AcademyLessonService;
+use Platform\Academy\Tools\Concerns\DescribesAppletBlocks;
 use Platform\Academy\Tools\Concerns\ResolvesAcademyTeam;
 use Platform\Core\Contracts\ToolContract;
 use Platform\Core\Contracts\ToolContext;
@@ -12,6 +13,7 @@ use Platform\Core\Contracts\ToolResult;
 
 class UpdateAcademyLessonTool implements ToolContract, ToolMetadataContract
 {
+    use DescribesAppletBlocks;
     use ResolvesAcademyTeam;
 
     public function getName(): string
@@ -21,7 +23,7 @@ class UpdateAcademyLessonTool implements ToolContract, ToolMetadataContract
 
     public function getDescription(): string
     {
-        return 'PUT /academy/lessons - Aktualisiert eine Lesson. ERFORDERLICH: lesson_id. Optional: title, summary, content, status, estimated_minutes, sort_order. Content-Operationen via op: append, prepend, replace_exact, upsert_heading.';
+        return 'PUT /academy/lessons - Aktualisiert eine Lesson. ERFORDERLICH: lesson_id. Optional: title, summary, content, status, estimated_minutes, sort_order. Content-Operationen via op: append, prepend, replace_exact, upsert_heading.' . $this->appletDoc();
     }
 
     public function getSchema(): array
@@ -33,7 +35,7 @@ class UpdateAcademyLessonTool implements ToolContract, ToolMetadataContract
                 'lesson_id' => ['type' => 'integer'],
                 'title' => ['type' => 'string'],
                 'summary' => ['type' => 'string'],
-                'content' => ['type' => 'string', 'description' => 'Ersetzt komplett. Wird ignoriert wenn op gesetzt.'],
+                'content' => ['type' => 'string', 'description' => 'Ersetzt komplett. Wird ignoriert wenn op gesetzt. Unterstuetzt interaktive Applets via ```applet-Codeblock (siehe Tool-Beschreibung).'],
                 'status' => ['type' => 'string', 'enum' => ['draft', 'published', 'archived']],
                 'estimated_minutes' => ['type' => 'integer'],
                 'sort_order' => ['type' => 'integer'],

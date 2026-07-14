@@ -4,6 +4,7 @@ namespace Platform\Academy\Tools;
 
 use Platform\Academy\Models\AcademyLesson;
 use Platform\Academy\Services\AcademyQuizService;
+use Platform\Academy\Tools\Concerns\DescribesAppletBlocks;
 use Platform\Academy\Tools\Concerns\ResolvesAcademyTeam;
 use Platform\Core\Contracts\ToolContract;
 use Platform\Core\Contracts\ToolContext;
@@ -12,6 +13,7 @@ use Platform\Core\Contracts\ToolResult;
 
 class UpsertAcademyQuizTool implements ToolContract, ToolMetadataContract
 {
+    use DescribesAppletBlocks;
     use ResolvesAcademyTeam;
 
     public function getName(): string
@@ -21,7 +23,7 @@ class UpsertAcademyQuizTool implements ToolContract, ToolMetadataContract
 
     public function getDescription(): string
     {
-        return 'POST /academy/quizzes/upsert - Legt den Concept-Check (Quiz) einer Lektion an oder ersetzt ihn komplett. ERFORDERLICH: lesson_id, questions[]. Jede Frage: type (single|multiple), prompt (Markdown), optional explanation, options[] mit label + is_correct. Optional: title, pass_pct (Default 70), shuffle_questions. Ein Quiz pro Lektion; besteht der Lernende es, gilt die Lektion als abgeschlossen.';
+        return 'POST /academy/quizzes/upsert - Legt den Concept-Check (Quiz) einer Lektion an oder ersetzt ihn komplett. ERFORDERLICH: lesson_id, questions[]. Jede Frage: type (single|multiple), prompt (Markdown), optional explanation, options[] mit label + is_correct. Optional: title, pass_pct (Default 70), shuffle_questions. Ein Quiz pro Lektion; besteht der Lernende es, gilt die Lektion als abgeschlossen.' . $this->appletDoc();
     }
 
     public function getSchema(): array

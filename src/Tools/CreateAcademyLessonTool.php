@@ -4,6 +4,7 @@ namespace Platform\Academy\Tools;
 
 use Platform\Academy\Models\AcademyTopic;
 use Platform\Academy\Services\AcademyLessonService;
+use Platform\Academy\Tools\Concerns\DescribesAppletBlocks;
 use Platform\Academy\Tools\Concerns\ResolvesAcademyTeam;
 use Platform\Core\Contracts\ToolContract;
 use Platform\Core\Contracts\ToolContext;
@@ -12,6 +13,7 @@ use Platform\Core\Contracts\ToolResult;
 
 class CreateAcademyLessonTool implements ToolContract, ToolMetadataContract
 {
+    use DescribesAppletBlocks;
     use ResolvesAcademyTeam;
 
     public function getName(): string
@@ -21,7 +23,7 @@ class CreateAcademyLessonTool implements ToolContract, ToolMetadataContract
 
     public function getDescription(): string
     {
-        return 'POST /academy/lessons - Erstellt eine neue Lesson in einem Thema. ERFORDERLICH: topic_id, title. Content ist Markdown.';
+        return 'POST /academy/lessons - Erstellt eine neue Lesson in einem Thema. ERFORDERLICH: topic_id, title. Content ist Markdown.' . $this->appletDoc();
     }
 
     public function getSchema(): array
@@ -33,7 +35,7 @@ class CreateAcademyLessonTool implements ToolContract, ToolMetadataContract
                 'topic_id' => ['type' => 'integer'],
                 'title' => ['type' => 'string'],
                 'summary' => ['type' => 'string', 'description' => 'Kurzbeschreibung (1-2 Saetze).'],
-                'content' => ['type' => 'string', 'description' => 'Markdown-Content.'],
+                'content' => ['type' => 'string', 'description' => 'Markdown-Content. Unterstuetzt interaktive Applets via ```applet-Codeblock (siehe Tool-Beschreibung).'],
                 'estimated_minutes' => ['type' => 'integer'],
                 'status' => ['type' => 'string', 'enum' => ['draft', 'published', 'archived'], 'description' => 'Default draft.'],
                 'slug' => ['type' => 'string'],
