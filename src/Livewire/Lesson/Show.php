@@ -122,9 +122,6 @@ class Show extends Component
         $hasQuiz = $quizQuestions !== [];
 
         $topicLessons = $lesson->topic->publishedLessons()->get(['id', 'uuid', 'title', 'sort_order']);
-        $currentIndex = $topicLessons->search(fn ($l) => $l->id === $lesson->id);
-        $prev = $currentIndex !== false && $currentIndex > 0 ? $topicLessons[$currentIndex - 1] : null;
-        $next = $currentIndex !== false && $currentIndex < $topicLessons->count() - 1 ? $topicLessons[$currentIndex + 1] : null;
 
         $completedIdsInTopic = app(AcademyProgressService::class)
             ->completedLessonIdsForUser($user->id, $topicLessons->pluck('id')->all());
@@ -134,6 +131,31 @@ class Show extends Component
             ->where('status', \Platform\Academy\Models\AcademyPath::STATUS_PUBLISHED)
             ->with('category')
             ->get();
+
+        // Prev/Next folgen dem KURS (Path), damit die Navigation ueber Themen-/Kapitel-
+        // grenzen hinweg funktioniert. Ohne Kurs-Kontext (reines Bibliotheks-Stoebern)
+        // bleibt es themenintern.
+        $primaryPath = $pathMemberships->first();
+        $sequence = $primaryPath
+            ? $primaryPath->lessons()
+                ->where('academy_lessons.status', AcademyLesson::STATUS_PUBLISHED)
+                ->with('topic:id,title')
+                ->get(['academy_lessons.id', 'academy_lessons.uuid', 'academy_lessons.title', 'academy_lessons.academy_topic_id'])
+            : null;
+
+        // Fallback auf die themeninterne Reihenfolge, wenn kein Kurs existiert oder die
+        // Lektion (unerwartet) nicht in der Kurs-Sequenz liegt.
+        if (!$sequence || $sequence->search(fn ($l) => $l->id === $lesson->id) === false) {
+            $sequence = $topicLessons;
+        }
+
+        $currentIndex = $sequence->search(fn ($l) => $l->id === $lesson->id);
+        $prev = $currentIndex !== false && $currentIndex > 0 ? $sequence[$currentIndex - 1] : null;
+        $next = $currentIndex !== false && $currentIndex < $sequence->count() - 1 ? $sequence[$currentIndex + 1] : null;
+
+        // Wechselt die naechste Lektion das Thema, ist es ein neues Kapitel.
+        $nextIsNewChapter = $next && isset($next->academy_topic_id) && $next->academy_topic_id !== $lesson->academy_topic_id;
+        $nextChapterTitle = $nextIsNewChapter ? ($next->topic?->title) : null;
 
         // Akzentfarbe des Hero: erbt die Farbe des Kurses (sonst Thema-Farbe, sonst Indigo).
         $accentColor = $pathMemberships->isNotEmpty()
@@ -157,6 +179,9 @@ class Show extends Component
             'isCompleted' => $isCompleted,
             'prev' => $prev,
             'next' => $next,
+            'nextIsNewChapter' => $nextIsNewChapter,
+            'nextChapterTitle' => $nextChapterTitle,
+            'primaryPath' => $primaryPath,
             'topicLessons' => $topicLessons,
             'completedSet' => $completedSet,
             'pathMemberships' => $pathMemberships,

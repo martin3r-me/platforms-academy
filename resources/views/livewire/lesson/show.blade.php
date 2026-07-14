@@ -504,12 +504,21 @@
 
                     @if($next)
                         <a wire:navigate href="{{ route('academy.lessons.show', ['uuid' => $next->uuid]) }}"
-                           class="group flex items-center justify-end gap-3 p-4 sm:mt-6 rounded-2xl border border-[var(--ui-border)] bg-[var(--ui-surface)] hover:bg-[var(--ui-muted-5)] hover:-translate-y-0.5 transition-all text-right">
+                           class="group flex items-center justify-end gap-3 p-4 sm:mt-6 rounded-2xl border hover:-translate-y-0.5 transition-all text-right {{ $nextIsNewChapter ? 'border-[var(--ui-primary-20)] bg-[var(--ui-primary-5)] hover:bg-[var(--ui-primary-10)]' : 'border-[var(--ui-border)] bg-[var(--ui-surface)] hover:bg-[var(--ui-muted-5)]' }}">
                             <div class="min-w-0">
-                                <div class="text-[10px] uppercase tracking-wider text-gray-400" style="font-family: var(--ui-font-mono);">Nächste</div>
+                                <div class="text-[10px] uppercase tracking-wider {{ $nextIsNewChapter ? 'text-[var(--ui-primary)] font-semibold' : 'text-gray-400' }}" style="font-family: var(--ui-font-mono);">{{ $nextIsNewChapter ? 'Nächstes Kapitel · ' . $nextChapterTitle : 'Nächste' }}</div>
                                 <div class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">{{ $next->title }}</div>
                             </div>
                             @svg('heroicon-o-arrow-right', 'w-5 h-5 text-gray-400 flex-shrink-0')
+                        </a>
+                    @elseif($primaryPath)
+                        <a wire:navigate href="{{ route('academy.paths.show', ['uuid' => $primaryPath->uuid]) }}"
+                           class="group flex items-center justify-end gap-3 p-4 sm:mt-6 rounded-2xl border border-emerald-500/25 bg-emerald-500/[0.07] hover:-translate-y-0.5 transition-all text-right">
+                            <div class="min-w-0">
+                                <div class="text-[10px] uppercase tracking-wider text-emerald-600 dark:text-emerald-400 font-semibold" style="font-family: var(--ui-font-mono);">Kurs-Ende</div>
+                                <div class="text-sm font-medium text-gray-900 dark:text-gray-100 truncate">Zurück zur Kursübersicht</div>
+                            </div>
+                            @svg('heroicon-o-flag', 'w-5 h-5 text-emerald-500 flex-shrink-0')
                         </a>
                     @endif
                 </div>
@@ -527,7 +536,12 @@
                         @if($next)
                             <a wire:navigate href="{{ route('academy.lessons.show', ['uuid' => $next->uuid]) }}"
                                class="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-[var(--ui-primary)] text-white text-sm font-semibold hover:opacity-90 transition">
-                                Nächste Lektion @svg('heroicon-s-arrow-right', 'w-4 h-4')
+                                {{ $nextIsNewChapter ? 'Nächstes Kapitel' : 'Nächste Lektion' }} @svg('heroicon-s-arrow-right', 'w-4 h-4')
+                            </a>
+                        @elseif($primaryPath)
+                            <a wire:navigate href="{{ route('academy.paths.show', ['uuid' => $primaryPath->uuid]) }}"
+                               class="flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-[var(--ui-primary)] text-white text-sm font-semibold hover:opacity-90 transition">
+                                @svg('heroicon-s-flag', 'w-4 h-4') Zur Kursübersicht
                             </a>
                         @endif
                         <button wire:click="reopen" class="w-full text-center text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition">Wieder als offen markieren</button>
@@ -562,7 +576,7 @@
                         @if($next)
                             <a wire:navigate href="{{ route('academy.lessons.show', ['uuid' => $next->uuid]) }}"
                                class="flex items-center justify-center gap-2 w-full px-4 py-2 rounded-xl border border-[var(--ui-border)] bg-[var(--ui-surface)] text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-[var(--ui-muted-5)] transition">
-                                Nächste Lektion @svg('heroicon-o-arrow-right', 'w-4 h-4')
+                                {{ $nextIsNewChapter ? 'Nächstes Kapitel' : 'Nächste Lektion' }} @svg('heroicon-o-arrow-right', 'w-4 h-4')
                             </a>
                         @endif
                     </div>
