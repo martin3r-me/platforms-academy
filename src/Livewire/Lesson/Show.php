@@ -121,6 +121,17 @@ class Show extends Component
         }
         $hasQuiz = $quizQuestions !== [];
 
+        // Checkbox-Bindung braucht fuer Mehrfach-Fragen ein Array als Startwert — sonst
+        // behandelt Livewire die Checkboxen als Boolean und hakt beim ersten Klick alle
+        // Optionen derselben Frage an. Single-Fragen bekommen einen Skalar-Startwert.
+        if ($hasQuiz && $this->quizResult === null) {
+            foreach ($quiz->questions as $question) {
+                if (!array_key_exists($question->id, $this->quizAnswers)) {
+                    $this->quizAnswers[$question->id] = $question->isMultiple() ? [] : '';
+                }
+            }
+        }
+
         $topicLessons = $lesson->topic->publishedLessons()->get(['id', 'uuid', 'title', 'sort_order']);
 
         $completedIdsInTopic = app(AcademyProgressService::class)
