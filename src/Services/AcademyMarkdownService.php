@@ -15,10 +15,126 @@ class AcademyMarkdownService
             return '';
         }
 
+        [$markdown, $applets] = $this->extractApplets($markdown);
+
         $html = (string) Str::of($markdown)->markdown();
         $html = $this->transformAlerts($html);
+        $html = $this->restoreApplets($html, $applets);
 
         return $html;
+    }
+
+    /**
+     * Pull ```applet fenced blocks out of the Markdown before conversion and
+     * replace each with a stable placeholder token. The captured body is raw
+     * HTML/JS that will later be rendered inside a sandboxed <iframe>.
+     *
+     * Author writes:
+     *   ```applet
+     *   <input id="t"><pre id="out"></pre>
+     *   <script> ... </script>
+     *   ```
+     *
+     * @return array{0:string,1:array<int,string>}
+     */
+    protected function extractApplets(string $markdown): array
+    {
+        $applets = [];
+        $pattern = '/^[ \t]*```applet[ \t]*\r?\n(.*?)\r?\n[ \t]*```[ \t]*$/ms';
+
+        $markdown = preg_replace_callback($pattern, function ($match) use (&$applets) {
+            $index = count($applets);
+            $applets[] = $match[1];
+
+            return "\n\n%%ACADEMY_APPLET_{$index}%%\n\n";
+        }, $markdown) ?? $markdown;
+
+        return [$markdown, $applets];
+    }
+
+    /**
+     * Swap the placeholder tokens back in as sandboxed applet iframes.
+     *
+     * @param  array<int,string>  $applets
+     */
+    protected function restoreApplets(string $html, array $applets): string
+    {
+        foreach ($applets as $index => $body) {
+            $iframe = $this->buildAppletIframe($body);
+            $token = "%%ACADEMY_APPLET_{$index}%%";
+
+            // The Markdown converter usually wraps the lone token in a <p>.
+            $html = str_replace(["<p>{$token}</p>", $token], [$iframe, $iframe], $html);
+        }
+
+        return $html;
+    }
+
+    /**
+     * Wrap author HTML/JS in a self-contained document and hand it to a
+     * sandboxed iframe. sandbox="allow-scripts" (deliberately WITHOUT
+     * allow-same-origin) gives the applet an opaque origin: it can run JS but
+     * cannot touch the host page, cookies or Livewire — so lesson content
+     * stays XSS-safe even though it may contain arbitrary scripts.
+     */
+    protected function buildAppletIframe(string $body): string
+    {
+        $srcdoc = htmlspecialchars($this->appletDocument($body), ENT_QUOTES, 'UTF-8');
+
+        return '<div class="academy-applet-wrap">'
+            . '<div class="academy-applet-bar"><span class="academy-applet-dot"></span>Interaktiv &middot; ausprobieren</div>'
+            . '<iframe class="academy-applet" sandbox="allow-scripts" loading="lazy" '
+            . 'title="Interaktives Beispiel" srcdoc="' . $srcdoc . '"></iframe>'
+            . '</div>';
+    }
+
+    /**
+     * The full HTML document rendered inside the applet iframe: a minimal reset
+     * + design-token-flavoured styling (light/dark aware) so authors only write
+     * the widget body, plus a resize reporter that posts its height to the host.
+     */
+    protected function appletDocument(string $body): string
+    {
+        $style = <<<'CSS'
+            :root{color-scheme:light dark}
+            *{box-sizing:border-box}
+            html,body{margin:0;padding:0}
+            body{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.55;color:#1e1b2e;padding:14px 16px}
+            @media(prefers-color-scheme:dark){body{color:#e5e7eb}}
+            h1,h2,h3,h4{margin:0 0 .5rem;font-family:ui-monospace,"JetBrains Mono",monospace}
+            label{display:block;font-weight:600;margin:0 0 .35rem}
+            input,textarea,select{font:inherit;width:100%;max-width:100%;padding:.55rem .7rem;border:1px solid #c7c9d9;border-radius:.65rem;background:#fff;color:#111}
+            textarea{min-height:3rem}
+            @media(prefers-color-scheme:dark){input,textarea,select{background:#1f2030;color:#e5e7eb;border-color:#3a3b52}}
+            button{font:inherit;cursor:pointer;padding:.55rem .9rem;border:0;border-radius:.65rem;background:#4F46E5;color:#fff;font-weight:600}
+            button:hover{background:#4338ca}
+            pre,.out{background:#f4f4fb;border-radius:.65rem;padding:.65rem .8rem;margin:.6rem 0 0;overflow-x:auto;font-family:ui-monospace,"JetBrains Mono",monospace;font-size:14px;white-space:pre-wrap;word-break:break-word;min-height:1.2rem}
+            @media(prefers-color-scheme:dark){pre,.out{background:#15161f}}
+            .row{display:flex;flex-direction:column;gap:.6rem}
+            .muted{color:#6b7280;font-size:13px}
+            CSS;
+
+        $resize = <<<'JS'
+            (function(){
+              function report(){
+                var h=Math.ceil(document.body.getBoundingClientRect().height)+2;
+                parent.postMessage({__academyApplet:true,height:h},'*');
+              }
+              window.addEventListener('load',report);
+              document.addEventListener('input',report,true);
+              document.addEventListener('change',report,true);
+              document.addEventListener('click',report,true);
+              if(window.ResizeObserver){try{new ResizeObserver(report).observe(document.body);}catch(e){}}
+              setTimeout(report,60);setTimeout(report,300);
+            })();
+            JS;
+
+        return '<!doctype html><html lang="de"><head><meta charset="utf-8">'
+            . '<meta name="viewport" content="width=device-width,initial-scale=1">'
+            . '<style>' . $style . '</style></head><body>'
+            . $body
+            . '<script>' . $resize . '</script>'
+            . '</body></html>';
     }
 
     /**

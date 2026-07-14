@@ -203,6 +203,43 @@
         font-size: 0.875em;
         font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
     }
+
+    /* === Interaktive Applets (Sandbox-iframe) === */
+    .academy-lesson-content .academy-applet-wrap {
+        margin: 1.5em 0;
+        border: 1px solid var(--ui-border);
+        border-radius: 0.9rem;
+        overflow: hidden;
+        background: var(--ui-surface);
+    }
+    .academy-lesson-content .academy-applet-bar {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.9rem;
+        font-family: var(--ui-font-mono);
+        font-size: 11px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.12em;
+        color: var(--ui-primary);
+        background: var(--ui-primary-5);
+        border-bottom: 1px solid var(--ui-border);
+    }
+    .academy-lesson-content .academy-applet-dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 9999px;
+        background: var(--ui-primary);
+        box-shadow: 0 0 0 3px var(--ui-primary-20);
+    }
+    .academy-lesson-content .academy-applet {
+        width: 100%;
+        display: block;
+        border: 0;
+        height: 160px; /* Startwert — per postMessage angepasst */
+        background: transparent;
+    }
 </style>
 
 {{-- Highlight.js init: einmal beim Laden + bei jeder Livewire-Navigation --}}
@@ -220,6 +257,25 @@
             setTimeout(initAcademyHighlight, 50);
         }
         document.addEventListener('livewire:navigated', initAcademyHighlight);
+    })();
+</script>
+
+{{-- Applet-iframes melden ihre Höhe per postMessage — Listener einmalig registrieren --}}
+<script>
+    (function() {
+        if (window.__academyAppletResize) return;
+        window.__academyAppletResize = true;
+        window.addEventListener('message', function(e) {
+            var d = e.data;
+            if (!d || d.__academyApplet !== true || typeof d.height !== 'number') return;
+            var frames = document.querySelectorAll('iframe.academy-applet');
+            for (var i = 0; i < frames.length; i++) {
+                if (frames[i].contentWindow === e.source) {
+                    frames[i].style.height = Math.max(48, d.height) + 'px';
+                    break;
+                }
+            }
+        });
     })();
 </script>
 
