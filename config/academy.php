@@ -33,6 +33,11 @@ return [
                     'route' => 'academy.topics.index',
                     'icon'  => 'heroicon-o-book-open',
                 ],
+                [
+                    'label' => 'Zuweisungen',
+                    'route' => 'academy.assignments.index',
+                    'icon'  => 'heroicon-o-flag',
+                ],
             ],
         ],
     ],

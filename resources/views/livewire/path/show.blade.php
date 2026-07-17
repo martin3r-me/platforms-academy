@@ -83,6 +83,33 @@
     <x-ui-page-container>
         <div class="max-w-5xl mx-auto space-y-8">
 
+            {{-- ===== PFLICHT-BANNER ===== --}}
+            @if($assignment)
+                @php
+                    $aOverdue = $assignment->status === \Platform\Academy\Models\AcademyUserAssignment::STATUS_OVERDUE;
+                    $aDue = $assignment->due_at;
+                @endphp
+                <div class="flex items-center gap-3 rounded-2xl border px-4 py-3 {{ $aOverdue ? 'border-red-500/40 bg-red-500/[0.06]' : 'border-[var(--ui-primary)]/30 bg-[var(--ui-primary-5)]' }}">
+                    <span class="flex-shrink-0 w-9 h-9 rounded-xl flex items-center justify-center {{ $aOverdue ? 'bg-red-500/15 text-red-600 dark:text-red-400' : 'bg-[var(--ui-primary-10)] text-[var(--ui-primary)]' }}">
+                        @svg('heroicon-o-flag', 'w-5 h-5')
+                    </span>
+                    <div class="min-w-0 text-sm">
+                        <div class="font-semibold text-gray-900 dark:text-gray-100">
+                            {{ $assignment->is_mandatory ? 'Dieser Kurs ist dir als Pflicht zugewiesen.' : 'Dieser Kurs wurde dir empfohlen.' }}
+                        </div>
+                        <div class="text-[13px] {{ $aOverdue ? 'text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-gray-400' }}">
+                            @if($aOverdue)
+                                Überfällig@if($aDue) seit {{ $aDue->format('d.m.Y') }}@endif — bitte bald abschließen.
+                            @elseif($aDue)
+                                Bitte bis <span class="font-medium">{{ $aDue->format('d.m.Y') }}</span> abschließen.
+                            @else
+                                Kein festes Enddatum.
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            @endif
+
             {{-- ===== HERO ===== --}}
             <div class="relative overflow-hidden rounded-3xl text-white shadow-lg"
                  style="background-image: linear-gradient(135deg, color-mix(in srgb, {{ $coverColor }} 92%, #ffffff), color-mix(in srgb, {{ $coverColor }} 62%, #000000));">

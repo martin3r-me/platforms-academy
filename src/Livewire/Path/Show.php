@@ -5,6 +5,7 @@ namespace Platform\Academy\Livewire\Path;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Platform\Academy\Models\AcademyPath;
+use Platform\Academy\Models\AcademyUserAssignment;
 use Platform\Academy\Services\AcademyCertificateService;
 use Platform\Academy\Services\AcademyEnrollmentService;
 use Platform\Academy\Services\AcademyProgressService;
@@ -51,6 +52,17 @@ class Show extends Component
 
         $certificate = app(AcademyCertificateService::class)->forUserPath($user->id, $path);
 
+        // Offene Zuweisung dieses Users für diesen Kurs (für den Pflicht-Banner).
+        $assignment = AcademyUserAssignment::where('user_id', $user->id)
+            ->where('academy_path_id', $path->id)
+            ->whereIn('status', [
+                AcademyUserAssignment::STATUS_ASSIGNED,
+                AcademyUserAssignment::STATUS_IN_PROGRESS,
+                AcademyUserAssignment::STATUS_OVERDUE,
+            ])
+            ->orderByRaw('due_at is null, due_at asc')
+            ->first();
+
         $this->dispatch('comms', [
             'model' => \Platform\Academy\Models\AcademyPath::class,
             'modelId' => $path->id,
@@ -70,6 +82,7 @@ class Show extends Component
             'enrollment' => $enrollment,
             'resumeLesson' => $resumeLesson,
             'certificate' => $certificate,
+            'assignment' => $assignment,
         ])->layout('platform::layouts.app');
     }
 

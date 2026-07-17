@@ -86,6 +86,61 @@
                 </p>
             </div>
 
+            {{-- PFLICHT / ZUGEWIESEN --}}
+            @if($assignments->isNotEmpty())
+                <div>
+                    <div class="flex items-center gap-2 mb-4">
+                        @svg('heroicon-o-flag', 'w-5 h-5 text-[var(--ui-primary)]')
+                        <h2 class="text-lg font-semibold text-gray-900 dark:text-gray-100">Für dich zu erledigen</h2>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        @foreach($assignments as $r)
+                            @php
+                                $ua = $r['ua'];
+                                $p = $r['path'];
+                                $due = $ua->due_at;
+                                $overdue = $ua->status === \Platform\Academy\Models\AcademyUserAssignment::STATUS_OVERDUE;
+                                $pct = (int) ($r['progress']['pct'] ?? 0);
+                            @endphp
+                            <div class="rounded-2xl border bg-[var(--ui-surface)] overflow-hidden flex flex-col shadow-sm hover:shadow-md transition-shadow {{ $overdue ? 'border-red-500/40' : 'border-[var(--ui-primary)]/30' }}">
+                                <div class="px-4 py-2 flex items-center justify-between text-[11px] font-semibold {{ $overdue ? 'bg-red-500/10 text-red-600 dark:text-red-400' : 'bg-[var(--ui-primary-10)] text-[var(--ui-primary)]' }}" style="font-family: var(--ui-font-mono);">
+                                    <span class="inline-flex items-center gap-1">
+                                        @svg('heroicon-o-flag', 'w-3.5 h-3.5')
+                                        {{ $ua->is_mandatory ? 'Pflicht' : 'Empfohlen' }}
+                                    </span>
+                                    <span>
+                                        @if($overdue)
+                                            Überfällig@if($due) · {{ $due->format('d.m.Y') }}@endif
+                                        @elseif($due)
+                                            Fällig {{ $due->format('d.m.Y') }}
+                                        @else
+                                            Kein Enddatum
+                                        @endif
+                                    </span>
+                                </div>
+                                <div class="p-4 flex flex-col gap-2.5 flex-1">
+                                    @if($p->category)
+                                        <span class="text-[10px] font-semibold uppercase tracking-wider" style="font-family: var(--ui-font-mono); color: {{ $p->coverColor() }};">{{ $p->category->title }}</span>
+                                    @endif
+                                    <a wire:navigate href="{{ route('academy.paths.show', ['uuid' => $p->uuid]) }}" class="font-semibold text-[15px] text-gray-900 dark:text-gray-100 leading-tight hover:text-[var(--ui-primary)] transition-colors">{{ $p->title }}</a>
+                                    <div class="w-full bg-[var(--ui-muted-10)] rounded-full h-1.5 mt-1">
+                                        <div class="h-1.5 rounded-full {{ $overdue ? 'bg-red-500' : 'bg-[var(--ui-primary)]' }}" style="width: {{ $pct }}%"></div>
+                                    </div>
+                                    <div class="flex items-center justify-between text-[11px] text-gray-400" style="font-family: var(--ui-font-mono);">
+                                        <span>{{ $r['progress']['completed'] ?? 0 }} / {{ $r['progress']['total'] ?? 0 }} Lektionen</span>
+                                        <span>{{ $pct }}%</span>
+                                    </div>
+                                    <a wire:navigate href="{{ route('academy.paths.show', ['uuid' => $p->uuid]) }}"
+                                       class="mt-1 flex items-center justify-center gap-2 w-full px-4 py-2 rounded-lg text-white text-[13px] font-semibold hover:opacity-90 transition {{ $overdue ? 'bg-red-500' : 'bg-[var(--ui-primary)]' }}">
+                                        {{ $pct > 0 ? 'Fortsetzen' : 'Starten' }} @svg('heroicon-s-arrow-right', 'w-4 h-4')
+                                    </a>
+                                </div>
+                            </div>
+                        @endforeach
+                    </div>
+                </div>
+            @endif
+
             {{-- ZWEI WEGE ZU LERNEN --}}
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <a wire:navigate href="{{ route('academy.paths.index') }}"

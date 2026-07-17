@@ -8,6 +8,7 @@ use Platform\Academy\Models\AcademyLesson;
 use Platform\Academy\Models\AcademyLessonProgress;
 use Platform\Academy\Models\AcademyPath;
 use Platform\Academy\Models\AcademyPathEnrollment;
+use Platform\Academy\Services\AcademyAssignmentService;
 use Platform\Academy\Services\AcademyCategoryService;
 use Platform\Academy\Services\AcademyCertificateService;
 use Platform\Academy\Services\AcademyEnrollmentService;
@@ -32,6 +33,16 @@ class Dashboard extends Component
     {
         $user = Auth::user();
         $teamId = $user?->currentTeam?->id;
+
+        // Zugewiesene / Pflichtkurse (offen), nach Deadline sortiert.
+        $assignments = app(AcademyAssignmentService::class)->openForUser($user->id, $teamId)
+            ->map(fn ($ua) => [
+                'ua' => $ua,
+                'path' => $ua->path,
+                'progress' => $ua->path?->progressFor($user->id),
+            ])
+            ->filter(fn ($r) => $r['path'] !== null)
+            ->values();
 
         // "Meine Academy" — eingeschriebene Kurse mit Fortschritt + Resume
         $enrollmentRows = app(AcademyEnrollmentService::class)->activeForUser($user->id, $teamId);
@@ -79,6 +90,7 @@ class Dashboard extends Component
 
         return view('academy::livewire.dashboard', [
             'firstName' => str($user->name)->explode(' ')->first(),
+            'assignments' => $assignments,
             'activeCourses' => $activeCourses,
             'completedCourses' => $completedCourses,
             'categories' => $categories,
