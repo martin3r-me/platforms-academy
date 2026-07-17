@@ -99,7 +99,7 @@
                         </div>
                         <div class="text-[13px] {{ $aOverdue ? 'text-red-600 dark:text-red-400' : 'text-gray-500 dark:text-gray-400' }}">
                             @if($aOverdue)
-                                Überfällig@if($aDue) seit {{ $aDue->format('d.m.Y') }}@endif — bitte bald abschließen.
+                                Überfällig{{ $aDue ? ' seit '.$aDue->format('d.m.Y') : '' }} — bitte bald abschließen.
                             @elseif($aDue)
                                 Bitte bis <span class="font-medium">{{ $aDue->format('d.m.Y') }}</span> abschließen.
                             @else

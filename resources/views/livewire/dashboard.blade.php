@@ -110,7 +110,7 @@
                                     </span>
                                     <span>
                                         @if($overdue)
-                                            Überfällig@if($due) · {{ $due->format('d.m.Y') }}@endif
+                                            Überfällig{{ $due ? ' · '.$due->format('d.m.Y') : '' }}
                                         @elseif($due)
                                             Fällig {{ $due->format('d.m.Y') }}
                                         @else
