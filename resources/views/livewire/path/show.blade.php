@@ -234,6 +234,110 @@
                     </ol>
                 @endif
             </div>
+            {{-- ===== VERWALTUNG · ZUWEISEN (nur Owner/Admin) ===== --}}
+            @if($canManage)
+                @php
+                    $fc = 'w-full rounded-lg border border-[var(--ui-border)] bg-[var(--ui-surface)] px-3 py-2 text-sm text-gray-900 dark:text-gray-100';
+                    $lc = 'block text-[11px] font-semibold uppercase tracking-wider text-gray-500 dark:text-gray-400 mb-1';
+                @endphp
+                <div class="rounded-2xl border border-[var(--ui-border)] bg-[var(--ui-surface)] p-5 shadow-sm space-y-5">
+                    <div class="flex items-center gap-2">
+                        @svg('heroicon-o-flag', 'w-5 h-5 text-[var(--ui-primary)]')
+                        <h2 class="text-lg font-bold tracking-tight text-gray-900 dark:text-gray-100" style="font-family: var(--ui-font-mono);">Kurs zuweisen</h2>
+                        <span class="text-xs text-gray-400" style="font-family: var(--ui-font-mono);">· Verwaltung</span>
+                    </div>
+
+                    @if(session('academy_assign_ok'))
+                        <div class="rounded-lg border border-emerald-500/30 bg-emerald-500/[0.06] px-3 py-2 text-sm text-emerald-700 dark:text-emerald-300">{{ session('academy_assign_ok') }}</div>
+                    @endif
+
+                    <form wire:submit="assign" class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="{{ $lc }}">Zuweisen an</label>
+                            <select wire:model.live="assignTargetType" class="{{ $fc }}">
+                                <option value="team">Ganzes Team</option>
+                                <option value="user">Einzelne Person</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="{{ $lc }}">{{ $assignTargetType === 'user' ? 'Person' : 'Team' }}</label>
+                            @if($assignTargetType === 'user')
+                                <select wire:model="assignTargetId" class="{{ $fc }}">
+                                    <option value="">— wählen —</option>
+                                    @foreach($manage['persons'] as $person)
+                                        <option value="{{ $person->id }}">{{ $person->name }}</option>
+                                    @endforeach
+                                </select>
+                            @else
+                                <select wire:model="assignTargetId" class="{{ $fc }}">
+                                    <option value="">— wählen —</option>
+                                    @foreach($manage['teams'] as $t)
+                                        <option value="{{ $t['id'] }}">{{ $t['name'] }}</option>
+                                    @endforeach
+                                </select>
+                            @endif
+                            @error('assignTargetId') <div class="text-xs text-red-500 mt-1">{{ $message }}</div> @enderror
+                        </div>
+                        <div>
+                            <label class="{{ $lc }}">Fällig bis <span class="normal-case text-gray-400">(optional)</span></label>
+                            <input type="date" wire:model="assignDueAt" class="{{ $fc }}">
+                        </div>
+                        <div class="flex items-end gap-4 pb-1">
+                            <label class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+                                <input type="checkbox" wire:model="assignMandatory" class="rounded border-[var(--ui-border)] text-[var(--ui-primary)] focus:ring-[var(--ui-primary)]/40"> Pflicht
+                            </label>
+                            @if($assignTargetType === 'team')
+                                <label class="inline-flex items-center gap-2 text-sm text-gray-700 dark:text-gray-300 cursor-pointer">
+                                    <input type="checkbox" wire:model="assignIncludeSubteams" class="rounded border-[var(--ui-border)] text-[var(--ui-primary)] focus:ring-[var(--ui-primary)]/40"> Sub-Teams
+                                </label>
+                            @endif
+                        </div>
+                        <div class="sm:col-span-2 flex justify-end">
+                            <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[var(--ui-primary)] text-white text-sm font-semibold hover:opacity-90 transition">
+                                @svg('heroicon-o-flag', 'w-4 h-4') Zuweisen
+                            </button>
+                        </div>
+                    </form>
+
+                    @if($manage['rules']->isNotEmpty())
+                        <div class="border-t border-[var(--ui-border)] pt-4 space-y-3">
+                            <div class="text-[11px] font-semibold uppercase tracking-wider text-gray-400" style="font-family: var(--ui-font-mono);">Wer hat's zu tun</div>
+                            @foreach($manage['rules'] as $a)
+                                @php
+                                    $total = (int) $a->persons_total; $done = (int) $a->persons_completed; $over = (int) $a->persons_overdue;
+                                    $pct = $total > 0 ? (int) round($done / $total * 100) : 0;
+                                    $arch = $a->status === \Platform\Academy\Models\AcademyCourseAssignment::STATUS_ARCHIVED;
+                                @endphp
+                                <div class="flex items-center gap-3 flex-wrap {{ $arch ? 'opacity-60' : '' }}">
+                                    <div class="min-w-0 flex-1">
+                                        <div class="text-sm text-gray-700 dark:text-gray-300">
+                                            <span class="font-medium">{{ $a->target_label }}</span>
+                                            <span class="text-[10px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded-full ml-1 {{ $a->is_mandatory ? 'bg-[var(--ui-primary-10)] text-[var(--ui-primary)]' : 'bg-[var(--ui-muted-10)] text-gray-500' }}" style="font-family: var(--ui-font-mono);">{{ $a->is_mandatory ? 'Pflicht' : 'Empf.' }}</span>
+                                            @if($a->due_at)<span class="text-xs text-gray-400"> · bis {{ $a->due_at->format('d.m.Y') }}</span>@endif
+                                            @if($arch)<span class="text-xs text-gray-400"> · widerrufen</span>@endif
+                                        </div>
+                                        <div class="w-full bg-[var(--ui-muted-10)] rounded-full h-1.5 mt-1"><div class="h-1.5 rounded-full bg-emerald-500" style="width: {{ $pct }}%"></div></div>
+                                        <div class="flex items-center gap-3 mt-1 text-[11px] text-gray-400" style="font-family: var(--ui-font-mono);">
+                                            <span>{{ $done }} / {{ $total }} abgeschlossen ({{ $pct }}%)</span>
+                                            @if($over > 0)<span class="text-red-500">{{ $over }} überfällig</span>@endif
+                                        </div>
+                                    </div>
+                                    @unless($arch)
+                                        <div class="flex items-center gap-1">
+                                            <button wire:click="resyncAssignment({{ $a->id }})" title="Mitglieder neu auflösen"
+                                                    class="p-1.5 rounded-lg text-gray-400 hover:text-[var(--ui-primary)] hover:bg-[var(--ui-muted-5)] transition">@svg('heroicon-o-arrow-path', 'w-4 h-4')</button>
+                                            <button wire:click="revokeAssignment({{ $a->id }})" wire:confirm="Zuweisung widerrufen? Einschreibung und Fortschritt bleiben erhalten."
+                                                    title="Widerrufen"
+                                                    class="p-1.5 rounded-lg text-gray-400 hover:text-red-500 hover:bg-red-500/5 transition">@svg('heroicon-o-x-mark', 'w-4 h-4')</button>
+                                        </div>
+                                    @endunless
+                                </div>
+                            @endforeach
+                        </div>
+                    @endif
+                </div>
+            @endif
+
         </div>
     </x-ui-page-container>
 </x-ui-page>
