@@ -8,6 +8,7 @@ use Platform\Academy\Livewire\Path\Index as PathIndex;
 use Platform\Academy\Livewire\Path\Show as PathShow;
 use Platform\Academy\Livewire\Certificate\Show as CertificateShow;
 use Platform\Academy\Livewire\Assignment\Index as AssignmentIndex;
+use Platform\Academy\Livewire\Design\Index as DesignIndex;
 
 Route::get('/', Dashboard::class)->name('academy.dashboard');
 
@@ -20,5 +21,8 @@ Route::get('/paths/{uuid}', PathShow::class)->name('academy.paths.show');
 Route::get('/lessons/{uuid}', LessonShow::class)->name('academy.lessons.show');
 
 Route::get('/assignments', AssignmentIndex::class)->name('academy.assignments.index');
+
+// Design-Referenz („Deck") — bewusst nicht im Menü, per URL erreichbar.
+Route::get('/design', DesignIndex::class)->name('academy.design');
 
 Route::get('/certificates/{uuid}', CertificateShow::class)->name('academy.certificates.show');
