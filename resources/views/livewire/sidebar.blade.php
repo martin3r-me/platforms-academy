@@ -20,6 +20,24 @@
         </x-ui-sidebar-item>
     </x-ui-sidebar-list>
 
+    @if($assignments->isNotEmpty())
+        <x-ui-sidebar-list label="Meine Pflichtkurse">
+            @foreach($assignments as $a)
+                <x-ui-sidebar-item :href="route('academy.paths.show', ['uuid' => $a['uuid']])" :active="request()->is('*/academy/paths/' . $a['uuid'])">
+                    @svg('heroicon-o-flag', 'w-4 h-4 ' . ($a['overdue'] ? 'text-red-500' : 'text-[var(--ui-primary)]'))
+                    <span class="ml-2 text-sm truncate">{{ $a['title'] }}</span>
+                    <x-slot name="trailing">
+                        @if($a['due'])
+                            <span class="text-[10px] font-semibold {{ $a['overdue'] ? 'text-red-500' : 'text-[var(--ui-muted)]' }}" title="fällig {{ $a['due_full'] }}">{{ $a['due'] }}</span>
+                        @else
+                            <span class="text-[10px] font-semibold text-[var(--ui-primary)]">Pflicht</span>
+                        @endif
+                    </x-slot>
+                </x-ui-sidebar-item>
+            @endforeach
+        </x-ui-sidebar-list>
+    @endif
+
     @if($courses->isNotEmpty())
         <x-ui-sidebar-list label="Meine Kurse">
             @foreach($courses as $course)
