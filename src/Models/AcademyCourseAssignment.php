@@ -59,7 +59,7 @@ class AcademyCourseAssignment extends Model
 
     public function assignedBy(): BelongsTo
     {
-        return $this->belongsTo(\App\Models\User::class, 'assigned_by_user_id');
+        return $this->belongsTo(\Platform\Core\Models\User::class, 'assigned_by_user_id');
     }
 
     public function userAssignments(): HasMany
