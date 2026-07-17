@@ -168,6 +168,9 @@ class AcademyEnrollmentService
             $enrollment->completed_at = null;
             $enrollment->save();
         }
+
+        // Pflichtkurs-Zuweisungen (falls vorhanden) synchron zum Fortschritt halten.
+        app(AcademyAssignmentService::class)->syncPathCompletion($enrollment->user_id, $path, $isComplete);
     }
 
     /**

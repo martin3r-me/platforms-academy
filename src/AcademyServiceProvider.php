@@ -52,6 +52,17 @@ class AcademyServiceProvider extends ServiceProvider
         $this->registerLivewireComponents();
 
         $this->registerTools();
+
+        // Pflichtkurs-Wartung: Command + täglicher Scheduler.
+        if ($this->app->runningInConsole()) {
+            $this->commands([
+                \Platform\Academy\Console\Commands\RunAssignmentMaintenanceCommand::class,
+            ]);
+        }
+
+        $this->callAfterResolving(\Illuminate\Console\Scheduling\Schedule::class, function (\Illuminate\Console\Scheduling\Schedule $schedule) {
+            $schedule->command('academy:assignments-tick')->dailyAt('08:00')->withoutOverlapping();
+        });
     }
 
     protected function registerTools(): void
@@ -102,6 +113,14 @@ class AcademyServiceProvider extends ServiceProvider
             $registry->register(new \Platform\Academy\Tools\AttachLessonToPathTool());
             $registry->register(new \Platform\Academy\Tools\DetachLessonFromPathTool());
             $registry->register(new \Platform\Academy\Tools\ReorderPathLessonsTool());
+
+            // Kurs-Zuweisungen / Pflichtkurse
+            $registry->register(new \Platform\Academy\Tools\CreateCourseAssignmentTool());
+            $registry->register(new \Platform\Academy\Tools\ListCourseAssignmentsTool());
+            $registry->register(new \Platform\Academy\Tools\GetCourseAssignmentTool());
+            $registry->register(new \Platform\Academy\Tools\UpdateCourseAssignmentTool());
+            $registry->register(new \Platform\Academy\Tools\DeleteCourseAssignmentTool());
+            $registry->register(new \Platform\Academy\Tools\ResyncCourseAssignmentTool());
         } catch (\Throwable $e) {
             // ToolRegistry not available yet (e.g. during migrations)
         }
