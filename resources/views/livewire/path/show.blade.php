@@ -255,27 +255,19 @@
                         <div>
                             <label class="{{ $lc }}">Zuweisen an</label>
                             <select wire:model.live="assignTargetType" class="{{ $fc }}">
-                                <option value="team">Ganzes Team</option>
-                                <option value="user">Einzelne Person</option>
+                                @foreach($manage['targetTypes'] as $tt)
+                                    <option value="{{ $tt['type'] }}">{{ $tt['label'] }}</option>
+                                @endforeach
                             </select>
                         </div>
                         <div>
-                            <label class="{{ $lc }}">{{ $assignTargetType === 'user' ? 'Person' : 'Team' }}</label>
-                            @if($assignTargetType === 'user')
-                                <select wire:model="assignTargetId" class="{{ $fc }}">
-                                    <option value="">— wählen —</option>
-                                    @foreach($manage['persons'] as $person)
-                                        <option value="{{ $person->id }}">{{ $person->name }}</option>
-                                    @endforeach
-                                </select>
-                            @else
-                                <select wire:model="assignTargetId" class="{{ $fc }}">
-                                    <option value="">— wählen —</option>
-                                    @foreach($manage['teams'] as $t)
-                                        <option value="{{ $t['id'] }}">{{ $t['name'] }}</option>
-                                    @endforeach
-                                </select>
-                            @endif
+                            <label class="{{ $lc }}">Ziel</label>
+                            <select wire:model="assignTargetId" class="{{ $fc }}">
+                                <option value="">— wählen —</option>
+                                @foreach($manage['targetOptions'] as $opt)
+                                    <option value="{{ $opt['id'] }}">{{ $opt['label'] }}</option>
+                                @endforeach
+                            </select>
                             @error('assignTargetId') <div class="text-xs text-red-500 mt-1">{{ $message }}</div> @enderror
                         </div>
                         <div>

@@ -2,7 +2,6 @@
 
 namespace Platform\Academy\Livewire\Path;
 
-use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Auth;
 use Livewire\Component;
 use Platform\Academy\Models\AcademyCourseAssignment;
@@ -12,7 +11,6 @@ use Platform\Academy\Services\AcademyAssignmentService;
 use Platform\Academy\Services\AcademyCertificateService;
 use Platform\Academy\Services\AcademyEnrollmentService;
 use Platform\Academy\Services\AcademyProgressService;
-use Platform\Core\Models\Team;
 use Platform\Core\Registry\AudienceResolverRegistry;
 
 class Show extends Component
@@ -45,6 +43,11 @@ class Show extends Component
         app(AcademyEnrollmentService::class)->drop($user->id, $path);
     }
 
+    public function updatedAssignTargetType(): void
+    {
+        $this->assignTargetId = null;
+    }
+
     public function assign(): void
     {
         $user = Auth::user();
@@ -54,10 +57,14 @@ class Show extends Component
         }
 
         $this->validate([
-            'assignTargetType' => 'required|in:user,team',
+            'assignTargetType' => 'required|string',
             'assignTargetId' => 'required|integer',
             'assignDueAt' => 'nullable|date',
         ]);
+
+        if (!app(AudienceResolverRegistry::class)->supports($this->assignTargetType)) {
+            return;
+        }
 
         app(AcademyAssignmentService::class)->assign(
             $path,
@@ -111,17 +118,6 @@ class Show extends Component
         return in_array($role, ['owner', 'admin'], true);
     }
 
-    protected function descendantTeams(Team $team): Collection
-    {
-        $out = collect();
-        foreach ($team->childTeams as $child) {
-            $out->push($child);
-            $out = $out->merge($this->descendantTeams($child));
-        }
-
-        return $out;
-    }
-
     public function render()
     {
         $user = Auth::user();
@@ -156,7 +152,6 @@ class Show extends Component
         $canManage = $this->userCanManage($user, $path->team_id);
         $manage = null;
         if ($canManage) {
-            $team = $user->currentTeam;
             $registry = app(AudienceResolverRegistry::class);
 
             $rules = AcademyCourseAssignment::where('team_id', $path->team_id)
@@ -175,9 +170,8 @@ class Show extends Component
 
             $manage = [
                 'rules' => $rules,
-                'persons' => $team->users()->orderBy('name')->get(['users.id', 'users.name']),
-                'teams' => collect([$team])->merge($this->descendantTeams($team))
-                    ->map(fn ($t) => ['id' => $t->id, 'name' => $t->name])->values(),
+                'targetTypes' => $registry->types(),
+                'targetOptions' => $registry->options($this->assignTargetType, $path->team_id),
             ];
         }
 
