@@ -4,7 +4,6 @@ namespace Platform\Academy\Organization;
 
 use Platform\Organization\Contracts\PersonActivityProvider;
 use Platform\Academy\Services\AcademyAssignmentService;
-use Illuminate\Support\Facades\Route;
 
 /**
  * Speist Academy-Pflichtkurse in die persönliche Sicht (home) — über den
@@ -67,7 +66,7 @@ class AcademyPersonActivityProvider implements PersonActivityProvider
             $items[] = [
                 'id'   => $i,
                 'name' => $c['title'],
-                'url'  => $this->courseUrl($c['path_uuid']),
+                'url'  => $c['url'] ?? null,
                 'meta' => $this->metaFor($c),
             ];
         }
@@ -100,13 +99,5 @@ class AcademyPersonActivityProvider implements PersonActivityProvider
             return 'fällig ' . \Illuminate\Support\Carbon::parse($course['due_at'])->format('d.m.Y');
         }
         return $course['progress_pct'] . '%';
-    }
-
-    protected function courseUrl(?string $uuid): ?string
-    {
-        if (!$uuid || !Route::has('academy.paths.show')) {
-            return null;
-        }
-        return route('academy.paths.show', ['uuid' => $uuid]);
     }
 }

@@ -8,6 +8,7 @@ use Platform\Academy\Models\AcademyPath;
 use Platform\Academy\Models\AcademyUserAssignment;
 use Platform\Core\Registry\AudienceResolverRegistry;
 use Platform\Notifications\Models\NotificationsNotice;
+use Illuminate\Support\Facades\Route;
 
 /**
  * Kern der Kurs-Delegation / Pflichtkurse. Entkoppelt: die Ziel-Auflösung
@@ -217,6 +218,9 @@ class AcademyAssignmentService
                 return [
                     'path_uuid'    => $path?->uuid,
                     'title'        => $path?->title ?? 'Kurs',
+                    'url'          => ($path?->uuid && Route::has('academy.paths.show'))
+                        ? route('academy.paths.show', ['uuid' => $path->uuid])
+                        : null,
                     'status'       => $ua->status,
                     'is_completed' => $ua->isCompleted(),
                     'is_overdue'   => $ua->status === AcademyUserAssignment::STATUS_OVERDUE,
