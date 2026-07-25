@@ -53,6 +53,19 @@ class AcademyServiceProvider extends ServiceProvider
 
         $this->registerTools();
 
+        // Pflichtkurse in die persönliche Sicht (home) einspeisen — über den
+        // PersonActivityRegistry-Kontrakt der organization (falls vorhanden).
+        try {
+            $registryClass = \Platform\Organization\Services\PersonActivityRegistry::class;
+            if (class_exists($registryClass)) {
+                resolve($registryClass)->register(
+                    new \Platform\Academy\Organization\AcademyPersonActivityProvider()
+                );
+            }
+        } catch (\Throwable $e) {
+            // organization nicht verfügbar — Pflichtkurse erscheinen dann nur auf der eigenen Seite.
+        }
+
         // Pflichtkurs-Wartung: Command + täglicher Scheduler.
         if ($this->app->runningInConsole()) {
             $this->commands([

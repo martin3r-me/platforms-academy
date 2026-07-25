@@ -195,6 +195,49 @@ class AcademyAssignmentService
             ->get();
     }
 
+    /**
+     * Pflichtkurse eines Users mit Status + Fortschritt — Kontrakt für die
+     * persönliche Sicht (home). Überfällig zuerst, dann offen, dann erledigt.
+     *
+     * @return array<int, array{path_uuid:?string, title:string, status:string, is_completed:bool, is_overdue:bool, due_at:?string, progress_pct:int}>
+     */
+    public function mandatoryForUser(int $userId, int $teamId): array
+    {
+        $items = AcademyUserAssignment::query()
+            ->where('user_id', $userId)
+            ->where('team_id', $teamId)
+            ->where('is_mandatory', true)
+            ->where('status', '!=', AcademyUserAssignment::STATUS_REVOKED)
+            ->with('path')
+            ->get()
+            ->map(function (AcademyUserAssignment $ua) use ($userId) {
+                $path = $ua->path;
+                $progress = $path ? $path->progressFor($userId) : ['pct' => 0];
+
+                return [
+                    'path_uuid'    => $path?->uuid,
+                    'title'        => $path?->title ?? 'Kurs',
+                    'status'       => $ua->status,
+                    'is_completed' => $ua->isCompleted(),
+                    'is_overdue'   => $ua->status === AcademyUserAssignment::STATUS_OVERDUE,
+                    'due_at'       => $ua->due_at?->toDateString(),
+                    'progress_pct' => (int) ($progress['pct'] ?? 0),
+                ];
+            })
+            ->all();
+
+        usort($items, function ($a, $b) {
+            $pa = $a['is_completed'] ? 2 : ($a['is_overdue'] ? 0 : 1);
+            $pb = $b['is_completed'] ? 2 : ($b['is_overdue'] ? 0 : 1);
+            if ($pa !== $pb) {
+                return $pa <=> $pb;
+            }
+            return strcmp($a['due_at'] ?? '9999-99-99', $b['due_at'] ?? '9999-99-99');
+        });
+
+        return $items;
+    }
+
     /** Sanfte Erinnerungen: bald fällig + überfällig (In-App). */
     public function sendReminders(): void
     {
