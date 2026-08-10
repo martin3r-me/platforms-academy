@@ -39,6 +39,11 @@ class AcademyServiceProvider extends ServiceProvider
             ModuleRouter::group('academy', function () {
                 $this->loadRoutesFrom(__DIR__.'/../routes/web.php');
             });
+
+            // API-Routen (Prefix /api/academy, Bearer-Token via 'api.auth').
+            ModuleRouter::apiGroup('academy', function () {
+                $this->loadRoutesFrom(__DIR__.'/../routes/api.php');
+            });
         }
 
         $this->loadMigrationsFrom(__DIR__ . '/../database/migrations');
