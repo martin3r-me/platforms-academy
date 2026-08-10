@@ -63,13 +63,16 @@ class CourseController extends ApiController
             return $this->notFound('Kurs nicht gefunden.');
         }
 
+        $markdown = app(\Platform\Academy\Services\AcademyMarkdownService::class);
+
         $lessons = $path->publishedLessons()
             ->get()
             ->map(fn (AcademyLesson $lesson) => [
                 'uuid' => $lesson->uuid,
                 'title' => $lesson->title,
                 'summary' => $lesson->summary,
-                'content' => $lesson->content,
+                // Fertig gerendertes HTML inkl. interaktiver Applet-iframes und Alerts.
+                'content_html' => $markdown->render($lesson->content),
                 'estimated_minutes' => $lesson->estimated_minutes,
                 'sort_order' => $lesson->pivot->sort_order ?? $lesson->sort_order,
             ])
