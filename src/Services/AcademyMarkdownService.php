@@ -95,23 +95,24 @@ class AcademyMarkdownService
      */
     protected function appletDocument(string $body): string
     {
+        // Festes Dark-Theme: die Applets sind für die dunkle Plattform-UI gebaut.
+        // Solider dunkler Body-Hintergrund + heller Text als Default, damit auch
+        // Widgets ohne eigene Textfarbe lesbar bleiben (kein dunkel-auf-dunkel).
         $style = <<<'CSS'
-            :root{color-scheme:light dark}
+            :root{color-scheme:dark}
             *{box-sizing:border-box}
             html,body{margin:0;padding:0}
-            body{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.55;color:#1e1b2e;padding:14px 16px}
-            @media(prefers-color-scheme:dark){body{color:#e5e7eb}}
-            h1,h2,h3,h4{margin:0 0 .5rem;font-family:ui-monospace,"JetBrains Mono",monospace}
-            label{display:block;font-weight:600;margin:0 0 .35rem}
-            input,textarea,select{font:inherit;width:100%;max-width:100%;padding:.55rem .7rem;border:1px solid #c7c9d9;border-radius:.65rem;background:#fff;color:#111}
+            body{font-family:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:15px;line-height:1.55;color:#e5e7eb;background:#0d1117;padding:14px 16px}
+            h1,h2,h3,h4{margin:0 0 .5rem;font-family:ui-monospace,"JetBrains Mono",monospace;color:#f3f4f6}
+            a{color:#93c5fd}
+            label{display:block;font-weight:600;margin:0 0 .35rem;color:#e5e7eb}
+            input,textarea,select{font:inherit;width:100%;max-width:100%;padding:.55rem .7rem;border:1px solid #3a3b52;border-radius:.65rem;background:#1f2030;color:#e5e7eb}
             textarea{min-height:3rem}
-            @media(prefers-color-scheme:dark){input,textarea,select{background:#1f2030;color:#e5e7eb;border-color:#3a3b52}}
             button{font:inherit;cursor:pointer;padding:.55rem .9rem;border:0;border-radius:.65rem;background:#4F46E5;color:#fff;font-weight:600}
             button:hover{background:#4338ca}
-            pre,.out{background:#f4f4fb;border-radius:.65rem;padding:.65rem .8rem;margin:.6rem 0 0;overflow-x:auto;font-family:ui-monospace,"JetBrains Mono",monospace;font-size:14px;white-space:pre-wrap;word-break:break-word;min-height:1.2rem}
-            @media(prefers-color-scheme:dark){pre,.out{background:#15161f}}
+            pre,.out{background:#15161f;border:1px solid #23252f;border-radius:.65rem;padding:.65rem .8rem;margin:.6rem 0 0;overflow-x:auto;font-family:ui-monospace,"JetBrains Mono",monospace;font-size:14px;white-space:pre-wrap;word-break:break-word;min-height:1.2rem;color:#e5e7eb}
             .row{display:flex;flex-direction:column;gap:.6rem}
-            .muted{color:#6b7280;font-size:13px}
+            .muted{color:#9aa0ae;font-size:13px}
             CSS;
 
         $resize = <<<'JS'
