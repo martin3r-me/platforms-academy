@@ -42,6 +42,7 @@ class AcademyPathService
             'color' => $attributes['color'] ?? null,
             'target_audience' => $attributes['target_audience'] ?? null,
             'status' => $attributes['status'] ?? AcademyPath::STATUS_DRAFT,
+            'public' => (bool) ($attributes['public'] ?? false),
             'sort_order' => $attributes['sort_order'] ?? $this->nextSortOrder($teamId),
         ]);
     }
@@ -50,11 +51,15 @@ class AcademyPathService
     {
         $data = array_intersect_key($attributes, array_flip([
             'title', 'academy_category_id', 'level', 'description', 'icon', 'color',
-            'target_audience', 'status', 'sort_order',
+            'target_audience', 'status', 'public', 'sort_order',
         ]));
 
         if (array_key_exists('level', $data)) {
             $data['level'] = $this->normalizeLevel($data['level']);
+        }
+
+        if (array_key_exists('public', $data)) {
+            $data['public'] = (bool) $data['public'];
         }
 
         // Code nur anfassen, wenn uebergeben - und Eindeutigkeit sicherstellen

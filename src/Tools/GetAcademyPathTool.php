@@ -65,6 +65,7 @@ class GetAcademyPathTool implements ToolContract, ToolMetadataContract
                 'description' => $path->description,
                 'target_audience' => $path->target_audience,
                 'status' => $path->status,
+                'public' => $path->public,
                 'icon' => $path->icon,
                 'color' => $path->color,
                 'sort_order' => $path->sort_order,

@@ -60,6 +60,7 @@ class ListAcademyPathsTool implements ToolContract, ToolMetadataContract
                     'description' => $p->description,
                     'target_audience' => $p->target_audience,
                     'status' => $p->status,
+                    'public' => $p->public,
                     'icon' => $p->icon,
                     'color' => $p->color,
                     'sort_order' => $p->sort_order,

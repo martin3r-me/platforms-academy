@@ -36,6 +36,7 @@ class CreateAcademyPathTool implements ToolContract, ToolMetadataContract
                 'description' => ['type' => 'string'],
                 'target_audience' => ['type' => 'string', 'description' => 'z.B. "Sales", "Dev", "Operations".'],
                 'status' => ['type' => 'string', 'enum' => ['draft', 'published', 'archived']],
+                'public' => ['type' => 'boolean', 'description' => 'Website-Freigabe. Nur Kurse mit status=published UND public=true werden über die Public Course API ausgeliefert. Default: false.'],
                 'icon' => ['type' => 'string'],
                 'color' => ['type' => 'string', 'description' => 'Optionaler Cover-Farb-Override (Hex). Sonst erbt der Kurs die Kategorie-Farbe.'],
                 'slug' => ['type' => 'string'],
@@ -71,6 +72,7 @@ class CreateAcademyPathTool implements ToolContract, ToolMetadataContract
                 'level' => $path->level,
                 'academy_category_id' => $path->academy_category_id,
                 'status' => $path->status,
+                'public' => $path->public,
                 'message' => "Lernpfad '{$path->title}' erstellt (Status: {$path->status}).",
             ]);
         } catch (\Throwable $e) {

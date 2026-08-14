@@ -15,8 +15,8 @@ use Platform\Core\Http\Controllers\ApiController;
  * `current_team_id` des Token-Users — es werden nur Kurse dieses Teams
  * ausgeliefert. Gedacht für die öffentliche Website (Kurskatalog + Kursdetail).
  *
- * Sichtbarkeit: aktuell alle veröffentlichten Kurse (status = published).
- * Ein späteres `public`-Flag lässt sich in scopedQuery() ergänzen.
+ * Sichtbarkeit: nur Kurse mit status = published UND public = true
+ * (Website-Freigabe). Siehe scopedQuery().
  */
 class CourseController extends ApiController
 {
@@ -106,14 +106,16 @@ class CourseController extends ApiController
     }
 
     /**
-     * Basis-Query: nur veröffentlichte Kurse des Teams.
-     * Hier später `->where('public', true)` ergänzen, sobald das Flag existiert.
+     * Basis-Query: nur veröffentlichte UND für die Website freigegebene Kurse
+     * des Teams. `status = published` ist der Redaktions-Status, `public = true`
+     * die explizite Freigabe nach außen — beides muss gesetzt sein.
      */
     protected function scopedQuery(int $teamId)
     {
         return AcademyPath::query()
             ->where('team_id', $teamId)
-            ->where('status', AcademyPath::STATUS_PUBLISHED);
+            ->where('status', AcademyPath::STATUS_PUBLISHED)
+            ->where('public', true);
     }
 
     /** Team aus dem authentifizierten Token-User. */

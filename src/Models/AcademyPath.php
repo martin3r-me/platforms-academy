@@ -43,7 +43,12 @@ class AcademyPath extends Model
         'color',
         'target_audience',
         'status',
+        'public',
         'sort_order',
+    ];
+
+    protected $casts = [
+        'public' => 'boolean',
     ];
 
     protected static function booted(): void

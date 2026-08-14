@@ -38,6 +38,7 @@ class UpdateAcademyPathTool implements ToolContract, ToolMetadataContract
                 'description' => ['type' => 'string'],
                 'target_audience' => ['type' => 'string'],
                 'status' => ['type' => 'string', 'enum' => ['draft', 'published', 'archived']],
+                'public' => ['type' => 'boolean', 'description' => 'Website-Freigabe. Nur Kurse mit status=published UND public=true werden über die Public Course API ausgeliefert.'],
                 'icon' => ['type' => 'string'],
                 'color' => ['type' => 'string', 'description' => 'Cover-Farb-Override (Hex).'],
                 'sort_order' => ['type' => 'integer'],
@@ -65,6 +66,7 @@ class UpdateAcademyPathTool implements ToolContract, ToolMetadataContract
                 'uuid' => $path->uuid,
                 'title' => $path->title,
                 'status' => $path->status,
+                'public' => $path->public,
                 'message' => "Lernpfad aktualisiert.",
             ]);
         } catch (\Throwable $e) {
